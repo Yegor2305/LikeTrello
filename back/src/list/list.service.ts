@@ -13,7 +13,7 @@ export class ListService {
   ) {}
 
   async addCard(userId: number, listId: number, cardDto: CreateCardDto) {
-    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['lists']});
+    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['lists', 'lists.cards']});
     const list = user.lists.find((list) => list.id === listId);
 
     if (user && list){
@@ -28,9 +28,11 @@ export class ListService {
         list.cards = [];
       }
       list.cards.push(card);
+
+      return list;
     }
 
-    return list;
+
 
   }
 

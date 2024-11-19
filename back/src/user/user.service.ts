@@ -1,4 +1,4 @@
-import {ConflictException, Injectable} from '@nestjs/common';
+import {ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import {User} from "./entities/user.entity";
 import {Repository} from "typeorm";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -18,6 +18,16 @@ export class UserService {
     return this.userRepository.findOne({ where: {username} });
   }
 
+  async getLists(userId: number) : Promise<List[]> {
+    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['lists', 'lists.cards'] });
+
+    if (user && user.lists){
+      return user.lists;
+    }
+
+    throw new NotFoundException();
+  }
+
   async addList(userId: number, listDto: CreateListDto): Promise<any> {
     const user = await this.userRepository.findOne({where: {id: userId}, relations: ['lists'] });
 
@@ -28,6 +38,7 @@ export class UserService {
 
       const list = this.listRepository.create({
         name: listDto.name,
+        cards: [],
         user: user,
       });
 

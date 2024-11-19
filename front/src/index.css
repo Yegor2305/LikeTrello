@@ -6,7 +6,7 @@ body{
   width: 100%;
   min-height: 100vh;
   background: var(--third-color);
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 header{
@@ -15,6 +15,13 @@ header{
   background-color: var(--primary-color);
   height: 10vh;
   padding: 0 20px;
+}
+
+.container{
+  height: 90vh;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  /*overflow: hidden;*/
 }
 
 .icon{
@@ -169,6 +176,10 @@ header{
   color: var(--fourth-color);
 }
 
+.pointer{
+  cursor: pointer;
+}
+
 .navigation a{
   text-decoration: none;
 }
@@ -213,3 +224,44 @@ header{
 
 }
 
+.list{
+  min-width: 272px;
+  background-color: var(--fourth-color);
+  border-radius: 12px;
+}
+
+.list-name{
+  padding: 6px 8px 6px 12px;
+}
+
+.list-content{
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.card{
+  padding: 8px 12px 4px;
+  background-color: var(--third-color);
+  cursor: pointer;
+  border-radius: 12px;
+  margin: 0 6px;
+  display: flex;
+}
+
+textarea{
+  box-sizing: border-box;
+  width: 100%;
+  resize: none;
+}
+
+.card:hover{
+  opacity: 0.9;
+}
+
+.lists-container{
+  gap: 16px;
+}
+
+.add-list-input{
+  height: 40px;
+}
