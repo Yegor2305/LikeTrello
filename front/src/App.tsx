@@ -14,11 +14,9 @@ function App() {
 
   const checkAuthentication = async () => {
     const token = getTokenFromLocalStorage()
-
     try {
       if (token){
         const data = await AuthService.getProfile();
-
         if (data){
           dispatch(login(data))
         }

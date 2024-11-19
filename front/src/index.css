@@ -19,7 +19,7 @@ header{
 
 .container{
   height: 90vh;
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
   /*overflow: hidden;*/
 }
@@ -260,6 +260,7 @@ textarea{
 
 .lists-container{
   gap: 16px;
+  margin-top: 16px;
 }
 
 .add-list-input{

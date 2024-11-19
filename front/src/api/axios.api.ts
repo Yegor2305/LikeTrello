@@ -8,6 +8,19 @@ export const instanceAuth = axios.create({
     }
 })
 
+instanceAuth.interceptors.request.use(
+    (config) => {
+        const token = getTokenFromLocalStorage();
+        if (token) {
+            config.headers.Authorization = 'Bearer ' + token;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 export const instanceGeneral = axios.create({
     baseURL: `${import.meta.env.VITE_BASE_URL}`,
     headers: {}

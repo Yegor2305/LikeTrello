@@ -48,8 +48,6 @@ const List : FC<ListProps> = ({list}) => {
                     </div>
                 )
             }
-
-
         </div>
     </div>
 }

@@ -3,7 +3,6 @@ import {UserService} from "../services/user.service.ts";
 import {IList} from "../types/types.ts";
 import List from "../components/list.tsx";
 
-
 const Home : FC = () => {
 
     const [lists, setLists] = useState<IList[]>([])
@@ -11,6 +10,7 @@ const Home : FC = () => {
     const [listName, setListName] = useState<string>("")
 
     useEffect(() => {
+
         const getLists = async () =>{
             const data = await UserService.getLists();
             if (data){

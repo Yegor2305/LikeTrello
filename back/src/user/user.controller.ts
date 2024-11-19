@@ -7,8 +7,8 @@ import {CreateListDto} from "../list/dto/create-list.dto";
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('lists')
   @UseGuards(JwtAuthGuard)
+  @Get('lists')
   getLists(@Request() req){
     return this.userService.getLists(req.user.id);
   }

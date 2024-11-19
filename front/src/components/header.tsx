@@ -11,9 +11,9 @@ const Header : FC = () => {
     const navigate = useNavigate();
 
     const logoutHandler = () => {
-        dispatch(logout())
-        removeTokenFromLocalStorage()
-        navigate('/');
+        dispatch(logout());
+        removeTokenFromLocalStorage();
+        navigate('/auth');
     }
 
     return <header>
