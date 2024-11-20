@@ -10,7 +10,7 @@ export interface IUserData{
 }
 
 export interface ICard{
-    id: number;
+    id: string;
     name: string;
     description: string | null;
     createdAt: Date;
@@ -18,7 +18,7 @@ export interface ICard{
 }
 
 export interface IList{
-    id: number;
+    id: string;
     name: string;
     cards: ICard[];
 }
@@ -28,7 +28,17 @@ export interface ListProps{
 }
 
 export interface CardProps{
+    id: string;
     card: ICard;
+    index: number;
+    // moveCard: (dragIndex : number, hoverIndex : number) => void;
+}
+
+export interface CardObject{
+    card: ICard;
+    list: IList;
+    index: number;
+    moveCard: (dragIndex : number, hoverIndex : number) => void;
 }
 
 export interface NewCardProps{
@@ -36,5 +46,10 @@ export interface NewCardProps{
 }
 
 export interface NewListProps{
+    name: string;
+}
+
+export interface ItemProps{
+    id: string;
     name: string;
 }
