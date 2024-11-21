@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateCardDto } from './create-card.dto';
+import { Min } from 'class-validator';
 
-export class UpdateCardDto extends PartialType(CreateCardDto) {}
+export class UpdateCardDto {
+	@Min(1)
+	id: number
+
+	@Min(1)
+	position?: number
+}

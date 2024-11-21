@@ -1,7 +1,6 @@
 import {FC, useState} from "react";
-import {IList, ListProps} from "../types/types.ts";
+import {ListProps} from "../types/types.ts";
 import Card from "./card.tsx";
-import {ListService} from "../services/list.service.ts";
 
 import {
     SortableContext,
@@ -9,10 +8,14 @@ import {
 } from "@dnd-kit/sortable";
 import {useDroppable} from "@dnd-kit/core";
 
+const containerStyle = {
+    paddingBottom: "6px",
+    paddingTop: "6px",
+    gap: 4,
+};
 
-const List : FC<ListProps> = ({list}) => {
+const List : FC<ListProps> = ({list, addCard}) => {
 
-    const [sList, setSList] = useState<IList>(list)
     const [adding, setAdding] = useState<boolean>(false);
     const [cardName, setCardName] = useState<string>("")
 
@@ -21,15 +24,8 @@ const List : FC<ListProps> = ({list}) => {
         id
     })
 
-
     const addCardHandler = async () => {
-        if (cardName.trim() != ""){
-            const data:IList = await ListService.addCard({name: cardName}, +list.id);
-
-            if (data){
-                setSList(data);
-            }
-        }
+        addCard(cardName, +list.id);
         setAdding(false);
     }
 
@@ -38,12 +34,12 @@ const List : FC<ListProps> = ({list}) => {
             <div className='list-name'>{list.name}</div>
         </div>
 
-            <div className='list-content flex flex-y'>
+            <div className='flex flex-y' style={containerStyle}>
                 <SortableContext id={id} items={list.cards}  strategy={verticalListSortingStrategy}>
-                    <div ref={setNodeRef}>
+                    <div ref={setNodeRef} className='list-content flex flex-y'>
                         {
-                            list.cards.map((card, index) => (
-                                <Card key={index} id={`${card.id}`} card={card} index={index}/>
+                            list.cards.map((card) => (
+                                <Card key={card.id} id={`${card.id}`} card={card} />
                             ))
                         }
                     </div>

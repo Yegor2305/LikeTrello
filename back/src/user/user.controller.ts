@@ -8,9 +8,15 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get('lists')
-  getLists(@Request() req){
-    return this.userService.getLists(req.user.id);
+  @Get('lists/:board_id')
+  getLists(@Request() req, @Param('board_id') board_id: number) {
+    return this.userService.getLists(req.user.id, board_id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('first-board-lists')
+  getFirstBoardList(@Request() req) {
+    return this.userService.getFirstBoardLists(req.user.id);
   }
 
   @Get('user/:username')

@@ -18,36 +18,72 @@ export class UserService {
     return this.userRepository.findOne({ where: {username} });
   }
 
-  async getLists(userId: number) : Promise<List[]> {
-    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['lists', 'lists.cards'] });
+  async getLists(userId: number, boardId: number) : Promise<any> {
+    const user = await this.userRepository.findOne({where: {id: userId},
+      relations: [
+          'boards',
+          'boards.lists',
+          'boards.lists.board',
+          'boards.lists.cards',
+      ] });
 
-    if (user && user.lists){
-      return user.lists;
+    if (!user) throw new NotFoundException('User not found');
+
+    const board = user.boards.find((board) => board.id === +boardId);
+
+    if (board && board.lists) {
+      return board.lists;
     }
 
-    throw new NotFoundException();
+    throw new NotFoundException('Board bot found');
+  }
+
+  async getFirstBoardLists(userId: number) : Promise<any> {
+    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['boards']});
+
+    if (user){
+      return await this.getLists(userId, user.boards[0].id)
+    }
+
+    throw new NotFoundException('User not found');
   }
 
   async addList(userId: number, listDto: CreateListDto): Promise<any> {
-    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['lists'] });
+    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['boards'] });
+    const existingList = await this.listRepository.findOne({where: {
+      name: listDto.name
+      },
+      relations: [
+          'board',
+          'board.user'
+      ]});
+
+    if (existingList && existingList.board.user.id === userId) {
+      throw new ConflictException("List already exists");
+    }
 
     if (user){
-      if (user.lists.findIndex(list => list.name === listDto.name) != -1){
-        throw new ConflictException("Place already added to user");
+
+      const board = user.boards.find((board) => board.id === listDto.boardId);
+      if (!board){
+        throw new ConflictException("Board does not exist");
       }
 
       const list = this.listRepository.create({
         name: listDto.name,
         cards: [],
-        user: user,
+        board: board,
       });
 
       await this.listRepository.save(list);
 
-      user.lists.push(list);
+      if (!board.lists) board.lists = [];
+
+      board.lists.push(list);
+
+      return true;
     }
 
-    return user.lists;
   }
 
 }

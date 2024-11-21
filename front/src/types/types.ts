@@ -9,9 +9,17 @@ export interface IUserData{
     password: string;
 }
 
+export interface IBoard{
+    id: number;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface ICard{
     id: string;
     name: string;
+    position?: number;
     description: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -20,25 +28,20 @@ export interface ICard{
 export interface IList{
     id: string;
     name: string;
+    board: IBoard;
     cards: ICard[];
 }
 
 export interface ListProps{
     list: IList;
+    addCard: (cardName: string, listId: number) => Promise<void>;
 }
 
 export interface CardProps{
     id: string;
     card: ICard;
-    index: number;
+    // _index?: number;
     // moveCard: (dragIndex : number, hoverIndex : number) => void;
-}
-
-export interface CardObject{
-    card: ICard;
-    list: IList;
-    index: number;
-    moveCard: (dragIndex : number, hoverIndex : number) => void;
 }
 
 export interface NewCardProps{
@@ -47,9 +50,19 @@ export interface NewCardProps{
 
 export interface NewListProps{
     name: string;
+    boardId: number;
 }
 
 export interface ItemProps{
     id: string;
     name: string;
+}
+
+export interface UpdateCardProps{
+    id: number;
+    position: number;
+}
+
+export interface UpdateCardsInListProps{
+    cards: UpdateCardProps[];
 }

@@ -8,11 +8,13 @@ import {ConfigService} from "@nestjs/config";
 import {IUser} from "./types/types";
 import * as bcrypt from 'bcrypt';
 import {CreateUserDto} from "../user/dto/create-user.dto";
+import {Board} from "../board/entities/board.entity";
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(Board) private readonly boardRepository: Repository<Board>,
         private readonly userService: UserService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
@@ -44,10 +46,21 @@ export class AuthService {
         if (userExist) throw new BadRequestException('User already exists');
 
         const salt = this.configService.get<string>('BCRYPT_SALT')
-        const newUser = await this.userRepository.save({
+        const newUser = this.userRepository.create({
             username: userDto.username,
-            password: await bcrypt.hash(userDto.password, salt)
+            password: await bcrypt.hash(userDto.password, salt),
+            boards: []
         });
+
+        const defaultBoard = await this.boardRepository.save({
+            name: 'Default',
+            user: newUser,
+            lists: []
+        })
+
+        newUser.boards.push(defaultBoard);
+        await this.userRepository.save(newUser);
+
         return {
             id: newUser.id,
             username: newUser.username,

@@ -4,7 +4,6 @@ import Error from "../pages/error.tsx";
 import Home from "../pages/home.tsx";
 import Auth from "../pages/auth.tsx";
 import ProtectedRoute from "../components/protectedRoute.tsx";
-import App from "../components/ap.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -15,8 +14,7 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <ProtectedRoute>
-                    {/*<App/>*/}
-                        <Home/>
+                    <Home/>
                 </ProtectedRoute>
 
             },

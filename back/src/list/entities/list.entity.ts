@@ -1,6 +1,6 @@
 import {Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Card} from "../../card/entities/card.entity";
-import {User} from "../../user/entities/user.entity";
+import {Board} from "../../board/entities/board.entity";
 
 @Entity()
 export class List {
@@ -13,6 +13,6 @@ export class List {
     @OneToMany(() => Card, card => card.list)
     cards: Card[];
 
-    @ManyToOne(() => User, user => user.lists)
-    user: User;
+    @ManyToOne(() => Board, board => board.lists)
+    board: Board;
 }

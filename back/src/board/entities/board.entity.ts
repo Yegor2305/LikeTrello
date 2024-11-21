@@ -3,24 +3,21 @@ import {
     CreateDateColumn,
     Entity,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import {List} from "../../list/entities/list.entity";
+import {User} from "../../user/entities/user.entity";
+import {Shared} from "../../shared/entities/shared.entity";
 
 @Entity()
-export class Card {
+export class Board {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
     name: string;
-
-    @Column({default: 1})
-    position: number;
-
-    @Column({nullable: true})
-    description: string;
 
     @CreateDateColumn()
     created_at: Date;
@@ -28,6 +25,12 @@ export class Card {
     @UpdateDateColumn()
     updated_at: Date;
 
-    @ManyToOne(() => List, (list) => list.cards)
-    list: List
+    @OneToMany(() => List, (list) => list.board)
+    lists: List[];
+
+    @ManyToOne(() => User, (user) => user.boards)
+    user: User;
+
+    @OneToMany(() => Shared, (shared) => shared.board)
+    shared: Shared;
 }

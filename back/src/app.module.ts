@@ -7,6 +7,8 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import { AuthModule } from './auth/auth.module';
 import { ListModule } from './list/list.module';
 import { CardModule } from './card/card.module';
+import { BoardModule } from './board/board.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { CardModule } from './card/card.module';
     AuthModule,
     ListModule,
     CardModule,
+    BoardModule,
+    SharedModule,
     ],
   controllers: [AppController],
   providers: [AppService],
