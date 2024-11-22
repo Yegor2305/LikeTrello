@@ -10,6 +10,7 @@ import {AuthService} from "../services/auth.service.ts";
 const Auth : FC = () => {
 
     const [isLogin, setIsLogin] = useState<boolean>(true)
+    const [email, setEmail] = useState<string>('');
     const [username, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const [repeatPassword, setRepeatPassword] = useState<string>('')
@@ -38,7 +39,7 @@ const Auth : FC = () => {
         try {
             e.preventDefault()
             if (password === repeatPassword){
-                const data = await AuthService.register({username, password});
+                const data = await AuthService.register({username, password, email});
                 log_in(data);
             }
 
@@ -53,26 +54,31 @@ const Auth : FC = () => {
         </h1>
         <form className='form-default' onSubmit={isLogin ? loginHandler : registrationHandler}>
             <input
-                type='text'
-                placeholder='Username'
-                onChange={(e) => setUsername(e.target.value)}/>
+              type='text'
+              placeholder='Username'
+              onChange={(e) => setUsername(e.target.value)} />
+            { !isLogin && (<input
+              type='email'
+              placeholder='Email'
+              onChange={(e) => setEmail(e.target.value)} />)
+            }
             <input
-                type='password'
-                placeholder='Password'
-                onChange={(e) => setPassword(e.target.value)}/>
+              type='password'
+              placeholder='Password'
+              onChange={(e) => setPassword(e.target.value)} />
             {
-                !isLogin && (
-                    <input type='password'
-                           placeholder='Repeat password'
-                           onChange={(e) => setRepeatPassword(e.target.value)}/>
-                )
+              !isLogin && (
+                <input type='password'
+                       placeholder='Repeat password'
+                       onChange={(e) => setRepeatPassword(e.target.value)} />
+              )
             }
             <button className='btn pad-x-20'>{isLogin ? 'Log in' : 'Sign Up'}</button>
 
         </form>
         {
             isLogin ? (
-                <button className='btn-text mt-20px' onClick={() => setIsLogin(!isLogin)}>Don't have an
+              <button className='btn-text mt-20px' onClick={() => setIsLogin(!isLogin)}>Don't have an
                     account?</button>
             ) : (
                 <button className='btn-text mt-20px' onClick={() => setIsLogin(!isLogin)}>Already have an

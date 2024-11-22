@@ -9,6 +9,7 @@ import { ListModule } from './list/list.module';
 import { CardModule } from './card/card.module';
 import { BoardModule } from './board/board.module';
 import { SharedModule } from './shared/shared.module';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { SharedModule } from './shared/shared.module';
     CardModule,
     BoardModule,
     SharedModule,
+    MailerModule,
     ],
   controllers: [AppController],
   providers: [AppService],

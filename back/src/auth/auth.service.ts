@@ -47,6 +47,7 @@ export class AuthService {
 
         const salt = this.configService.get<string>('BCRYPT_SALT')
         const newUser = this.userRepository.create({
+            email: userDto.email,
             username: userDto.username,
             password: await bcrypt.hash(userDto.password, salt),
             boards: []

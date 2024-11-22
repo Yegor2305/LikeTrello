@@ -1,7 +1,8 @@
 import {FC, useEffect, useState} from "react";
 import {UserService} from "../services/user.service.ts";
-import {IList} from "../types/types.ts";
+import { IBoard, IList } from '../types/types.ts';
 import List from "../components/list.tsx";
+import Modal from 'react-modal';
 import {
     closestCorners,
     DndContext,
@@ -12,22 +13,45 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { ListService } from '../services/list.service.ts';
+import ShareBoardModal from '../components/share-board-modal.tsx';
+
+
+Modal.setAppElement('#root');
 
 const Home : FC = () => {
 
-    const [lists, setLists] = useState<IList[]>([])
+    const [board, setBoard] = useState<IBoard>({id: 0, name: 'absent', createdAt: new Date(),
+        updatedAt: new Date(), lists: []});
+
+    const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
     const [adding, setAdding] = useState<boolean>(false)
     const [listName, setListName] = useState<string>("")
     const [_activeId, setActiveId] = useState<string | null>(null);
 
-    const setStringIds = (data : IList[]) => {
-        for (let list of data){
+    const modalStyle = {
+        content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            width: '50%',
+            height: '50%',
+            padding: '6px',
+            transform: 'translate(-50%, -50%)',
+        },
+    };
+
+    const setStringIds = (data : IBoard) => {
+        for (let list of data.lists){
             list.id = `${list.id}`
             for (let card of list.cards){
                 card.id = `${card.id}`;
             }
+            list.cards.sort((a, b) => {
+                return a.position - b.position;
+            })
         }
-        setLists(data);
+        setBoard(data);
     }
     const getLists = async () =>{
         const data = await UserService.getFirstBoardLists();
@@ -47,12 +71,12 @@ const Home : FC = () => {
     );
 
     const findContainer = (id : string)=> {
-        const inLists = lists.find((list) => list.id === id);
+        const inLists = board.lists.find((list) => list.id === id);
         // console.log(inLists)
         if (inLists) return inLists;
         // return
         let result : IList | undefined;
-        lists.forEach((list) => {
+        board.lists.forEach((list) => {
             if (list.cards.find((card) => card.id === id)){
                 result = list;
             }
@@ -87,7 +111,7 @@ const Home : FC = () => {
             return;
         }
 
-        setLists((prev) => {
+        setBoard((prev) => {
             const activeCards = activeContainer.cards;
             const overCards = overContainer.cards;
 
@@ -96,7 +120,7 @@ const Home : FC = () => {
 
             let newIndex;
 
-            if (prev.map((container) => container.id).includes(overId)) {
+            if (prev.lists.map((container) => container.id).includes(overId)) {
                 newIndex = overCards.length + 1;
             } else {
                 const isBelowLastItem =
@@ -109,38 +133,42 @@ const Home : FC = () => {
 
             // console.log(`New index: ${newIndex}`);
 
-            return prev.map((container) => {
-                if (container.id === activeContainer.id) {
-                    const newCards = container.cards.filter((item) => item?.id !== id)
+            return {
+                ...prev, lists: prev.lists.map((container) => {
+                    if (container.id === activeContainer.id) {
+                        const newCards = container.cards.filter((item) => item?.id !== id)
 
-                    ListService.updateListCards({
-                        cards: newCards.map((card, index) => ({
-                            id: +card.id,
-                            position: index + 1
-                        }))
-                    }, +container.id)
+                        ListService.updateListCards({
+                            cards: newCards.map((card, index) => ({
+                                id: +card.id,
+                                position: index + 1
+                            }))
+                        }, +container.id)
 
-                    return { ...container,
-                        cards: newCards
-                    };
-                } else if (container.id === overContainer.id) {
-                    const newCards = [
-                        ...container.cards.slice(0, newIndex),
-                        activeCards[activeIndex],
-                        ...container.cards.slice(newIndex)];
+                        return {
+                            ...container,
+                            cards: newCards
+                        };
+                    } else if (container.id === overContainer.id) {
+                        const newCards = [
+                            ...container.cards.slice(0, newIndex),
+                            activeCards[activeIndex],
+                            ...container.cards.slice(newIndex)];
 
-                    ListService.updateListCards({
-                        cards: newCards.map((card, index) => ({
-                            id: +card.id,
-                            position: index + 1
-                        }))
-                    }, +container.id)
+                        ListService.updateListCards({
+                            cards: newCards.map((card, index) => ({
+                                id: +card.id,
+                                position: index + 1
+                            }))
+                        }, +container.id)
 
-                    return {
-                        ...container, cards: newCards
-                    };
-                } return container;
-            });
+                        return {
+                            ...container, cards: newCards
+                        };
+                    }
+                    return container;
+                })
+            }
             // console.log(newLists)
         })
     }
@@ -168,8 +196,8 @@ const Home : FC = () => {
         const overIndex = overContainer.cards.findIndex(item => item?.id == overId);
 
         if (activeIndex !== overIndex){
-            setLists((prev) => {
-                return prev.map((list) => {
+            setBoard((prev) => {
+                return {...prev, lists:  prev.lists.map((list) => {
                     if (list.id === activeContainer.id){
                         const newCards = arrayMove(list.cards, activeIndex, overIndex);
                         ListService.updateListCards({
@@ -184,7 +212,7 @@ const Home : FC = () => {
                         }
                     }
                     return list
-                })
+                })}
             })
 
             setActiveId(null);
@@ -193,13 +221,14 @@ const Home : FC = () => {
 
     const addListHandler = async () => {
         if (listName.trim() != ""){
-            const data = await UserService.addList({name: listName, boardId: lists[0].board.id})
+            const data = await UserService.addList({name: listName, boardId: board?.id})
             if (data) {
                 getLists()
             }
         }
 
         setAdding(false);
+        setListName('');
     }
 
     const addCard = async (cardName : string, listId : number) => {
@@ -209,38 +238,47 @@ const Home : FC = () => {
         }
     }
 
-    return <div className='flex flex-x lists-container'>
+    return <>
+        <button className='share-board-button' onClick={() => setModalIsOpen(true)}>Share board</button>
+        <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={() => setModalIsOpen(false)}
+        style={modalStyle}>
+            <ShareBoardModal/>
+        </Modal>
+        <div className='flex flex-x lists-container'>
 
-        <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        collisionDetection={closestCorners}>
+            <DndContext
+            sensors={sensors}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+            collisionDetection={closestCorners}>
+
+                {
+                    board.lists.map((list) => (
+                        <List key={list.id} list={list} addCard={addCard}/>
+                    ))
+                }
+                {/*<DragOverlay>{activeId ? <div className='card'></div> : null}</DragOverlay>*/}
+            </DndContext>
 
             {
-                lists.map((list) => (
-                    <List key={list.id} list={list} addCard={addCard}/>
-                ))
+                adding ? (
+                    <form className='flex'>
+                        <input type='text' className='add-list-input card'
+                        value={listName}
+                        onChange={(e) => setListName(e.target.value)}
+                        onBlur={() => addListHandler()}/>
+                    </form>
+                ) : (
+                    <div className='flex list pointer items-center justify-center' onClick={() => setAdding(true)}>
+                        + Add List
+                    </div>
+                )
             }
-            {/*<DragOverlay>{activeId ? <div className='card'></div> : null}</DragOverlay>*/}
-        </DndContext>
-
-        {
-            adding ? (
-                <form className='flex'>
-                    <input type='text' className='add-list-input card'
-                    value={listName}
-                    onChange={(e) => setListName(e.target.value)}
-                    onBlur={() => addListHandler()}/>
-                </form>
-            ) : (
-                <div className='flex list pointer items-center justify-center' onClick={() => setAdding(true)}>
-                    + Add List
-                </div>
-            )
-        }
-    </div>
+        </div>
+    </>
 }
 
 export default Home;

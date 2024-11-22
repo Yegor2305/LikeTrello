@@ -32,5 +32,5 @@ export class Board {
     user: User;
 
     @OneToMany(() => Shared, (shared) => shared.board)
-    shared: Shared;
+    shared: Shared[];
 }

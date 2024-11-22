@@ -1,8 +1,8 @@
 import { instanceAuth } from "../api/axios.api.ts"
-import {IUserData, IUser} from "../types/types.ts";
+import { IUserData, IUser, IUserRegisterData } from '../types/types.ts';
 
 export const AuthService = {
-    async register(userData : IUserData) : Promise<IUser> {
+    async register(userData : IUserRegisterData) : Promise<IUser> {
         const {data} = await instanceAuth.post<IUser>("/auth/register", userData);
         return data;
     },

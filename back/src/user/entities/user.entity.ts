@@ -7,6 +7,9 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({default: "email@gmail.com", unique: true})
+    email: string;
+
     @Column()
     username: string;
 
@@ -17,8 +20,8 @@ export class User {
     boards: Board[];
 
     @OneToMany(() => Shared, (shared) => shared.userWhoShared)
-    meShared: Shared;
+    meShared: Shared[];
 
     @OneToMany(() => Shared, (shared) => shared.userSharedWith)
-    sharedWithMe: Shared;
+    sharedWithMe: Shared[];
 }

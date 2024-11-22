@@ -4,6 +4,12 @@ export interface IUser{
     access_token: string;
 }
 
+export interface IUserRegisterData {
+    email: string;
+    username: string;
+    password: string;
+}
+
 export interface IUserData{
     username: string;
     password: string;
@@ -14,12 +20,13 @@ export interface IBoard{
     name: string;
     createdAt: Date;
     updatedAt: Date;
+    lists: IList[];
 }
 
 export interface ICard{
     id: string;
     name: string;
-    position?: number;
+    position: number;
     description: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -28,7 +35,6 @@ export interface ICard{
 export interface IList{
     id: string;
     name: string;
-    board: IBoard;
     cards: ICard[];
 }
 
@@ -40,8 +46,6 @@ export interface ListProps{
 export interface CardProps{
     id: string;
     card: ICard;
-    // _index?: number;
-    // moveCard: (dragIndex : number, hoverIndex : number) => void;
 }
 
 export interface NewCardProps{

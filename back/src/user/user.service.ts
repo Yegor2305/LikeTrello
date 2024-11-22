@@ -1,9 +1,12 @@
-import {ConflictException, Injectable, NotFoundException} from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import {User} from "./entities/user.entity";
 import {Repository} from "typeorm";
 import {InjectRepository} from "@nestjs/typeorm";
 import {CreateListDto} from "../list/dto/create-list.dto";
 import {List} from "../list/entities/list.entity";
+import { MailerService } from '../mailer/mailer.service';
+import { JwtService } from '@nestjs/jwt';
+import { Shared } from '../shared/entities/shared.entity';
 
 @Injectable()
 export class UserService {
@@ -11,6 +14,10 @@ export class UserService {
   constructor(
       @InjectRepository(User) private readonly userRepository : Repository<User>,
       @InjectRepository(List) private readonly listRepository : Repository<List>,
+      @InjectRepository(Shared) private readonly sharedRepository : Repository<Shared>,
+      private readonly mailerService: MailerService,
+      private readonly jwtService: JwtService,
+
   ) {
   }
 
@@ -23,7 +30,6 @@ export class UserService {
       relations: [
           'boards',
           'boards.lists',
-          'boards.lists.board',
           'boards.lists.cards',
       ] });
 
@@ -32,7 +38,7 @@ export class UserService {
     const board = user.boards.find((board) => board.id === +boardId);
 
     if (board && board.lists) {
-      return board.lists;
+      return board;
     }
 
     throw new NotFoundException('Board bot found');
@@ -63,8 +69,8 @@ export class UserService {
     }
 
     if (user){
-
       const board = user.boards.find((board) => board.id === listDto.boardId);
+
       if (!board){
         throw new ConflictException("Board does not exist");
       }
@@ -86,4 +92,59 @@ export class UserService {
 
   }
 
+  async sendSharingEmail(userId: number, email: string, boardId: number){
+    const userWhoSharing = await this.userRepository.findOne({where: {id: userId}, relations: ['boards']});
+    if (userWhoSharing){
+      if (userWhoSharing.email === email ||
+          !userWhoSharing.boards.find((board) => board.id === +boardId)){
+        throw new BadRequestException("An error in input data occurred");
+      }
+    }
+
+    const token = this.jwtService.sign({ id: userId, email: email, boardId: boardId });
+    const url = `http://localhost:3000/user/share-board-confirm?token=${token}`;
+    
+    const html = `
+    <!DOCTYPE html> 
+      <html lang='en'> 
+        <body> 
+          <h1>Confirm your email</h1> 
+          <p>Please confirm your email by clicking the following link:</p> 
+          <a href="${url}">Confirm Email</a> 
+        </body> 
+      </html> `;
+    await this.mailerService.sendEmail(email, 'Board Sharing', html)
+  }
+
+  async confirmBoardSharing(token: string){
+    try{
+      const payload = this.jwtService.verify(token);
+      const {id, email, boardId} = payload;
+      const userWhoSharing = await this.userRepository.findOne({where: {id: id}, relations: ['boards']});
+      const userToShare = await this.userRepository.findOne({where: {email: email}});
+      const board = userWhoSharing.boards.find((board) => board.id === +boardId);
+
+      const newSharedRelations = this.sharedRepository.create({
+        userWhoShared: userWhoSharing,
+        userSharedWith: userToShare,
+        board: board,
+      })
+
+      await this.sharedRepository.save(newSharedRelations);
+
+      if (!userWhoSharing.meShared) userWhoSharing.meShared = [];
+      userWhoSharing.meShared.push(newSharedRelations);
+
+      if (!userToShare.sharedWithMe) userToShare.sharedWithMe = [];
+      userToShare.sharedWithMe.push(newSharedRelations);
+
+      if (!board.shared) board.shared = [];
+      board.shared.push(newSharedRelations);
+
+      return {success: true};
+    }
+    catch (error){
+      return {success: false, message: 'An error has occurred' };
+    }
+  }
 }

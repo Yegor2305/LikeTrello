@@ -27,6 +27,7 @@ const List : FC<ListProps> = ({list, addCard}) => {
     const addCardHandler = async () => {
         addCard(cardName, +list.id);
         setAdding(false);
+        setCardName('');
     }
 
     return <div className='list flex flex-y'>
