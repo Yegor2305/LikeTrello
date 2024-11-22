@@ -4,6 +4,10 @@ export interface IUser{
     access_token: string;
 }
 
+export interface IUsername{
+    username: string;
+}
+
 export interface IUserRegisterData {
     email: string;
     username: string;
@@ -18,9 +22,15 @@ export interface IUserData{
 export interface IBoard{
     id: number;
     name: string;
+    user?: IUsername; // just username
     createdAt: Date;
     updatedAt: Date;
     lists: IList[];
+}
+
+export interface ISharedBoards{
+    id: number;
+    board: IBoard;
 }
 
 export interface ICard{
@@ -38,7 +48,11 @@ export interface IList{
     cards: ICard[];
 }
 
-export interface ListProps{
+export interface SharedProp{
+    shared: boolean;
+}
+
+export interface ListProps extends SharedProp{
     list: IList;
     addCard: (cardName: string, listId: number) => Promise<void>;
 }
@@ -69,4 +83,23 @@ export interface UpdateCardProps{
 
 export interface UpdateCardsInListProps{
     cards: UpdateCardProps[];
+}
+
+export type Pages = 'home' | 'shared';
+
+export interface MenuProps{
+    forPage: Pages;
+}
+
+export interface BoardDisplayProps extends SharedProp{
+    boardToDisplay: IBoard;
+}
+
+export interface EmailSendingProps{
+    email: string;
+    boardId: number;
+}
+
+export interface ShareModalProps{
+    boardId: number;
 }

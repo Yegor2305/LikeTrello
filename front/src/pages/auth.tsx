@@ -48,7 +48,7 @@ const Auth : FC = () => {
         }
     }
 
-    return <div className='flex flex-y justify-center items-center to-center'>
+    return <div className='flex flex-y justify-center items-center'>
         <h1 className='to-center color-first mt-20'>
             {isLogin ? 'Login' : 'Registration'}
         </h1>

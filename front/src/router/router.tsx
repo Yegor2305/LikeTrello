@@ -1,9 +1,9 @@
 import {createBrowserRouter} from "react-router-dom";
 import Template from "../pages/template.tsx";
 import Error from "../pages/error.tsx";
-import Home from "../pages/home.tsx";
 import Auth from "../pages/auth.tsx";
-import ProtectedRoute from "../components/protectedRoute.tsx";
+import ProtectedRoute from "../components/protected-route.tsx";
+import Menu from '../components/menu.tsx';
 
 export const router = createBrowserRouter([
     {
@@ -14,9 +14,16 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <ProtectedRoute>
-                    <Home/>
+                    <Menu forPage={'home'}/>
+                    {/*<BoardDisplay/>*/}
                 </ProtectedRoute>
 
+            },
+            {
+                path: 'shared',
+                element: <ProtectedRoute>
+                    <Menu forPage={'shared'}/>
+                </ProtectedRoute>
             },
             {
                 path: 'auth',

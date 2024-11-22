@@ -14,7 +14,7 @@ const containerStyle = {
     gap: 4,
 };
 
-const List : FC<ListProps> = ({list, addCard}) => {
+const List : FC<ListProps> = ({list, addCard, shared}) => {
 
     const [adding, setAdding] = useState<boolean>(false);
     const [cardName, setCardName] = useState<string>("")
@@ -35,18 +35,22 @@ const List : FC<ListProps> = ({list, addCard}) => {
             <div className='list-name'>{list.name}</div>
         </div>
 
-            <div className='flex flex-y' style={containerStyle}>
-                <SortableContext id={id} items={list.cards}  strategy={verticalListSortingStrategy}>
-                    <div ref={setNodeRef} className='list-content flex flex-y'>
-                        {
-                            list.cards.map((card) => (
-                                <Card key={card.id} id={`${card.id}`} card={card} />
-                            ))
-                        }
-                    </div>
-                </SortableContext>
+            <div className='flex flex-y flex-end flex-1' style={containerStyle}>
                 {
-                    adding ? (
+                    list.cards.length > 0 && (
+                        <SortableContext id={id} items={list.cards} strategy={verticalListSortingStrategy}>
+                            <div ref={setNodeRef} className='list-content flex flex-y'>
+                                {
+                                    list.cards.map((card) => (
+                                        <Card key={card.id} id={`${card.id}`} card={card} />
+                                    ))
+                                }
+                            </div>
+                            </SortableContext>
+                    )
+                }
+                {
+                    adding && (
                         <form className='flex'>
                         <textarea className='card'
                                   onBlur={() => addCardHandler()}
@@ -54,7 +58,10 @@ const List : FC<ListProps> = ({list, addCard}) => {
                                   onChange={(e) => setCardName(e.target.value)}>
                         </textarea>
                         </form>
-                    ) : (
+                    )
+                }
+                {
+                    (!adding && !shared) &&(
                         <div className='card' onClick={() => setAdding(true)}>
                             + Add card
                         </div>

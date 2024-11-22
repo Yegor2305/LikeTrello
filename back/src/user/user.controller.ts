@@ -21,15 +21,27 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get('lists/:board_id')
-  getLists(@Request() req, @Param('board_id') board_id: number) {
-    return this.userService.getLists(req.user.id, board_id);
+  @Get('board/:board_id')
+  getBoard(@Request() req, @Param('board_id') board_id: number) {
+    return this.userService.getBoard(req.user.id, board_id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('first-board-lists')
   getFirstBoardList(@Request() req) {
     return this.userService.getFirstBoardLists(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('boards')
+  getBoards(@Request() req) {
+    return this.userService.getBoards(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('shared-boards')
+  getSharedBoards(@Request() req) {
+    return this.userService.getSharedBoards(req.user.id);
   }
 
   @Get('user/:username')
@@ -53,7 +65,7 @@ export class UserController {
   @Get('share-board-confirm')
   async confirmBoardSharing(@Query('token') token: string, @Res() res: Response){
     const result = await this.userService.confirmBoardSharing(token);
-    if (result.success) {
+    if (result.success || result.emailNotRegistered) {
       return res.redirect('http://localhost:5173/auth')
     }else{
       return res.redirect('http://localhost:5173/error');

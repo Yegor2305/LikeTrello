@@ -9,7 +9,6 @@ interface Props {
 const ProtectedRoute : FC<Props> = ({ children }) => {
 
     const isAuth = useAuth()
-
     return <>
         {
             isAuth ? children : <Auth/>

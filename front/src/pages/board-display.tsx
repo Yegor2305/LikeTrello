@@ -1,6 +1,6 @@
-import {FC, useEffect, useState} from "react";
-import {UserService} from "../services/user.service.ts";
-import { IBoard, IList } from '../types/types.ts';
+import { FC, useEffect, useState } from "react";
+import { UserService } from "../services/user.service.ts";
+import { BoardDisplayProps, IBoard, IList } from '../types/types.ts';
 import List from "../components/list.tsx";
 import Modal from 'react-modal';
 import {
@@ -18,11 +18,9 @@ import ShareBoardModal from '../components/share-board-modal.tsx';
 
 Modal.setAppElement('#root');
 
-const Home : FC = () => {
+export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) => {
 
-    const [board, setBoard] = useState<IBoard>({id: 0, name: 'absent', createdAt: new Date(),
-        updatedAt: new Date(), lists: []});
-
+    const [board, setBoard] = useState<IBoard>(boardToDisplay);
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
     const [adding, setAdding] = useState<boolean>(false)
     const [listName, setListName] = useState<string>("")
@@ -41,10 +39,10 @@ const Home : FC = () => {
         },
     };
 
-    const setStringIds = (data : IBoard) => {
-        for (let list of data.lists){
+    const setStringIds = (data: IBoard) => {
+        for (let list of data.lists) {
             list.id = `${list.id}`
-            for (let card of list.cards){
+            for (let card of list.cards) {
                 card.id = `${card.id}`;
             }
             list.cards.sort((a, b) => {
@@ -53,15 +51,17 @@ const Home : FC = () => {
         }
         setBoard(data);
     }
-    const getLists = async () =>{
-        const data = await UserService.getFirstBoardLists();
-        if (data){
+
+    const getLists = async () => {
+        const data = await UserService.getBoard(board.id);
+        if (data) {
             setStringIds(data);
         }
     }
+
     useEffect(() => {
-        getLists();
-    }, []);
+        setStringIds(boardToDisplay);
+    }, [boardToDisplay]);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -70,21 +70,21 @@ const Home : FC = () => {
         })
     );
 
-    const findContainer = (id : string)=> {
+    const findContainer = (id: string) => {
         const inLists = board.lists.find((list) => list.id === id);
         // console.log(inLists)
         if (inLists) return inLists;
         // return
-        let result : IList | undefined;
+        let result: IList | undefined;
         board.lists.forEach((list) => {
-            if (list.cards.find((card) => card.id === id)){
+            if (list.cards.find((card) => card.id === id)) {
                 result = list;
             }
         })
         return result;
     }
 
-    const handleDragStart = (event: any)=> {
+    const handleDragStart = (event: any) => {
         const { active } = event;
         const { id } = active;
         setActiveId(id);
@@ -185,9 +185,9 @@ const Home : FC = () => {
         const overContainer = findContainer(overId);
 
         if (
-          !activeContainer ||
-          !overContainer ||
-          activeContainer !== overContainer
+            !activeContainer ||
+            !overContainer ||
+            activeContainer !== overContainer
         ) {
             return;
         }
@@ -195,24 +195,26 @@ const Home : FC = () => {
         const activeIndex = activeContainer.cards.findIndex(item => item?.id == id);
         const overIndex = overContainer.cards.findIndex(item => item?.id == overId);
 
-        if (activeIndex !== overIndex){
+        if (activeIndex !== overIndex) {
             setBoard((prev) => {
-                return {...prev, lists:  prev.lists.map((list) => {
-                    if (list.id === activeContainer.id){
-                        const newCards = arrayMove(list.cards, activeIndex, overIndex);
-                        ListService.updateListCards({
-                            cards: newCards.map((card, index) => ({
-                                id: +card.id,
-                                position: index + 1
-                            }))
-                        }, +list.id)
-                        return {
-                            ...list,
-                            cards: newCards
+                return {
+                    ...prev, lists: prev.lists.map((list) => {
+                        if (list.id === activeContainer.id) {
+                            const newCards = arrayMove(list.cards, activeIndex, overIndex);
+                            ListService.updateListCards({
+                                cards: newCards.map((card, index) => ({
+                                    id: +card.id,
+                                    position: index + 1
+                                }))
+                            }, +list.id)
+                            return {
+                                ...list,
+                                cards: newCards
+                            }
                         }
-                    }
-                    return list
-                })}
+                        return list
+                    })
+                }
             })
 
             setActiveId(null);
@@ -220,8 +222,8 @@ const Home : FC = () => {
     }
 
     const addListHandler = async () => {
-        if (listName.trim() != ""){
-            const data = await UserService.addList({name: listName, boardId: board?.id})
+        if (listName.trim() != "") {
+            const data = await UserService.addList({ name: listName, boardId: board?.id })
             if (data) {
                 getLists()
             }
@@ -231,54 +233,61 @@ const Home : FC = () => {
         setListName('');
     }
 
-    const addCard = async (cardName : string, listId : number) => {
-        if (cardName.trim() != ""){
-            const data: IList = await ListService.addCard({name: cardName}, listId);
+    const addCard = async (cardName: string, listId: number) => {
+        if (cardName.trim() != "") {
+            const data: IList = await ListService.addCard({ name: cardName }, listId);
             if (data) getLists();
         }
     }
 
-    return <>
-        <button className='share-board-button' onClick={() => setModalIsOpen(true)}>Share board</button>
+    return <div className='board-display'>
+        {
+            !shared && (
+                <button className='share-board-button' onClick={() => setModalIsOpen(true)}>Share board</button>
+            )
+        }
         <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={() => setModalIsOpen(false)}
-        style={modalStyle}>
-            <ShareBoardModal/>
+            isOpen={modalIsOpen}
+            onRequestClose={() => setModalIsOpen(false)}
+            style={modalStyle}>
+            <ShareBoardModal boardId={board.id}/>
         </Modal>
         <div className='flex flex-x lists-container'>
-
-            <DndContext
-            sensors={sensors}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}
-            collisionDetection={closestCorners}>
-
-                {
-                    board.lists.map((list) => (
-                        <List key={list.id} list={list} addCard={addCard}/>
-                    ))
-                }
-                {/*<DragOverlay>{activeId ? <div className='card'></div> : null}</DragOverlay>*/}
-            </DndContext>
+            {
+                <DndContext
+                    sensors={sensors}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDragEnd={handleDragEnd}
+                    collisionDetection={closestCorners}>
+                    {
+                        board.lists.map((list) => (
+                            <List key={list.id} list={list} addCard={addCard} shared={shared} />
+                        ))
+                    }
+                    {/*<DragOverlay>{activeId ? <div className='card'></div> : null}</DragOverlay>*/}
+                </DndContext>
+            }
 
             {
-                adding ? (
+                adding && (
                     <form className='flex'>
                         <input type='text' className='add-list-input card'
-                        value={listName}
-                        onChange={(e) => setListName(e.target.value)}
-                        onBlur={() => addListHandler()}/>
+                               value={listName}
+                               onChange={(e) => setListName(e.target.value)}
+                               onBlur={() => addListHandler()} />
                     </form>
-                ) : (
-                    <div className='flex list pointer items-center justify-center' onClick={() => setAdding(true)}>
+                )
+            }
+            {
+                (!adding && !shared) && (
+                    <div className='flex list pointer items-center justify-center text-align-center' onClick={() => setAdding(true)}>
                         + Add List
                     </div>
                 )
             }
         </div>
-    </>
+    </div>
 }
 
-export default Home;
+// export default BoardDisplay;

@@ -23,7 +23,13 @@ const Header : FC = () => {
                     <ul className='navigation'>
                         <li className='navigation-item'>
                             <NavLink to='/'
-                                     className={({isActive}) => isActive ? 'text-navigation-active' : 'text-navigation-common'}>Home</NavLink>
+                            className={({isActive}) => isActive ? 'text-navigation-active' : 'text-navigation-common'}>
+                            Home</NavLink>
+                        </li>
+                        <li className='navigation-item'>
+                            <NavLink to='shared'
+                            className={({isActive}) => isActive ? 'text-navigation-active' : 'text-navigation-common'}>
+                            Shared</NavLink>
                         </li>
                     </ul>
                 </nav>

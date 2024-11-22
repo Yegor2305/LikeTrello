@@ -25,7 +25,36 @@ export class UserService {
     return this.userRepository.findOne({ where: {username} });
   }
 
-  async getLists(userId: number, boardId: number) : Promise<any> {
+  async getBoards(userId: number){
+    const user = await this.userRepository.findOne({where: {id: userId}, relations: [
+        'boards',
+        'boards.lists',
+        'boards.lists.cards',
+      ]});
+
+    if (user){
+      return user.boards;
+    }
+    throw new NotFoundException('User not found');
+  }
+
+  async getSharedBoards(userId: number){
+    const user = await this.userRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.sharedWithMe', 'sharedWithMe')
+        .leftJoinAndSelect('sharedWithMe.board', 'board')
+        .leftJoinAndSelect('board.lists', 'lists')
+        .leftJoinAndSelect('lists.cards', 'cards')
+        .leftJoin('board.user', 'owner')
+        .addSelect('owner.username')
+        .where('user.id = :userId', { userId }) .getOne();
+
+    if (user && user.sharedWithMe){
+      return user.sharedWithMe;
+    }
+    throw new NotFoundException('User not found or user does not have shared boards');
+  }
+
+  async getBoard(userId: number, boardId: number) : Promise<any> {
     const user = await this.userRepository.findOne({where: {id: userId},
       relations: [
           'boards',
@@ -48,7 +77,7 @@ export class UserService {
     const user = await this.userRepository.findOne({where: {id: userId}, relations: ['boards']});
 
     if (user){
-      return await this.getLists(userId, user.boards[0].id)
+      return await this.getBoard(userId, user.boards[0].id)
     }
 
     throw new NotFoundException('User not found');
@@ -108,9 +137,9 @@ export class UserService {
     <!DOCTYPE html> 
       <html lang='en'> 
         <body> 
-          <h1>Confirm your email</h1> 
-          <p>Please confirm your email by clicking the following link:</p> 
-          <a href="${url}">Confirm Email</a> 
+          <h1>Accept board sharing</h1> 
+          <p>Click the following link to accept:</p> 
+          <a href="${url}">Accept</a> 
         </body> 
       </html> `;
     await this.mailerService.sendEmail(email, 'Board Sharing', html)
@@ -122,6 +151,11 @@ export class UserService {
       const {id, email, boardId} = payload;
       const userWhoSharing = await this.userRepository.findOne({where: {id: id}, relations: ['boards']});
       const userToShare = await this.userRepository.findOne({where: {email: email}});
+
+      if (!userToShare){
+        return {success: false, emailNotRegistered: true};
+      }
+
       const board = userWhoSharing.boards.find((board) => board.id === +boardId);
 
       const newSharedRelations = this.sharedRepository.create({
@@ -141,10 +175,10 @@ export class UserService {
       if (!board.shared) board.shared = [];
       board.shared.push(newSharedRelations);
 
-      return {success: true};
+      return {success: true, emailNotRegistered: false};
     }
     catch (error){
-      return {success: false, message: 'An error has occurred' };
+      return {success: false, emailNotRegistered: false, message: 'An error has occurred' };
     }
   }
 }
