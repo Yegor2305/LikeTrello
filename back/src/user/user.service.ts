@@ -150,10 +150,20 @@ export class UserService {
       const payload = this.jwtService.verify(token);
       const {id, email, boardId} = payload;
       const userWhoSharing = await this.userRepository.findOne({where: {id: id}, relations: ['boards']});
-      const userToShare = await this.userRepository.findOne({where: {email: email}});
+      let userToShare = await this.userRepository.findOne({where: {email: email}});
+      let emailNotRegistered = false
 
       if (!userToShare){
-        return {success: false, emailNotRegistered: true};
+        emailNotRegistered = true;
+
+        userToShare = this.userRepository.create({
+          username: '',
+          password: '',
+          email: email,
+          boards: [],
+        })
+
+        await this.userRepository.save(userToShare)
       }
 
       const board = userWhoSharing.boards.find((board) => board.id === +boardId);
@@ -175,7 +185,7 @@ export class UserService {
       if (!board.shared) board.shared = [];
       board.shared.push(newSharedRelations);
 
-      return {success: true, emailNotRegistered: false};
+      return {success: !emailNotRegistered, emailNotRegistered: emailNotRegistered};
     }
     catch (error){
       return {success: false, emailNotRegistered: false, message: 'An error has occurred' };

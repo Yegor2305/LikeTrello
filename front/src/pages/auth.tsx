@@ -2,14 +2,14 @@ import {FC, useState} from "react";
 import * as React from "react";
 import {useAppDispatch} from "../store/hooks.ts";
 import {useNavigate} from "react-router-dom";
-import {IUser} from "../types/types.ts";
+import { AuthProps, IUser } from '../types/types.ts';
 import {login} from "../store/userSlice.ts";
 import {setTokenToLocalStorage} from "../services/localStorageManager.ts";
 import {AuthService} from "../services/auth.service.ts";
 
-const Auth : FC = () => {
+const Auth : FC<AuthProps> = ({isLogin}) => {
 
-    const [isLogin, setIsLogin] = useState<boolean>(true)
+    // const [isLogin, setIsLogin] = useState<boolean>(true)
     const [email, setEmail] = useState<string>('');
     const [username, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
@@ -78,10 +78,10 @@ const Auth : FC = () => {
         </form>
         {
             isLogin ? (
-              <button className='btn-text mt-20px' onClick={() => setIsLogin(!isLogin)}>Don't have an
+              <button className='btn-text mt-20px' onClick={() => navigate('/register')}>Don't have an
                     account?</button>
             ) : (
-                <button className='btn-text mt-20px' onClick={() => setIsLogin(!isLogin)}>Already have an
+                <button className='btn-text mt-20px' onClick={() => navigate('/login')}>Already have an
                     account?</button>
             )
         }

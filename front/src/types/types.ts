@@ -103,3 +103,7 @@ export interface EmailSendingProps{
 export interface ShareModalProps{
     boardId: number;
 }
+
+export interface AuthProps{
+    isLogin: boolean;
+}

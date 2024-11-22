@@ -65,9 +65,12 @@ export class UserController {
   @Get('share-board-confirm')
   async confirmBoardSharing(@Query('token') token: string, @Res() res: Response){
     const result = await this.userService.confirmBoardSharing(token);
-    if (result.success || result.emailNotRegistered) {
-      return res.redirect('http://localhost:5173/auth')
+    if (result.success) {
+      return res.redirect('http://localhost:5173/login')
     }else{
+      if (result.emailNotRegistered){
+        return res.redirect('http://localhost:5173/register');
+      }
       return res.redirect('http://localhost:5173/error');
     }
   }

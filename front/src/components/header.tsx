@@ -41,7 +41,7 @@ const Header : FC = () => {
                     <span>Log out</span>
                 </button>
             ) : (
-                <Link className='to-right a-default text-navigation-common' to='auth'>
+                <Link className='to-right a-default text-navigation-common' to='login'>
                     Log in | Sign Up
                 </Link>
             )

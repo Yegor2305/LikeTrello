@@ -15,7 +15,6 @@ export const router = createBrowserRouter([
                 index: true,
                 element: <ProtectedRoute>
                     <Menu forPage={'home'}/>
-                    {/*<BoardDisplay/>*/}
                 </ProtectedRoute>
 
             },
@@ -26,8 +25,12 @@ export const router = createBrowserRouter([
                 </ProtectedRoute>
             },
             {
-                path: 'auth',
-                element: <Auth/>,
+                path: 'login',
+                element: <Auth isLogin={true}/>,
+            },
+            {
+                path: 'register',
+                element: <Auth isLogin={false}/>
             }
         ],
     }
