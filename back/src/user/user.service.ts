@@ -60,11 +60,18 @@ export class UserService {
           'boards',
           'boards.lists',
           'boards.lists.cards',
+          'sharedWithMe',
+          'sharedWithMe.board',
+          'sharedWithMe.board.lists',
+          'sharedWithMe.board.lists.cards',
       ] });
 
     if (!user) throw new NotFoundException('User not found');
 
-    const board = user.boards.find((board) => board.id === +boardId);
+    let board = user.boards.find((board) => board.id === +boardId);
+
+    if (!board)
+      board = user.sharedWithMe.find((shared) => shared.board.id === +boardId).board;
 
     if (board && board.lists) {
       return board;
@@ -84,7 +91,12 @@ export class UserService {
   }
 
   async addList(userId: number, listDto: CreateListDto): Promise<any> {
-    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['boards'] });
+
+    const user = await this.userRepository.findOne({where: {id: userId}, relations: [
+			'boards',
+			'sharedWithMe',
+			'sharedWithMe.board'
+		] });
     const existingList = await this.listRepository.findOne({where: {
       name: listDto.name
       },
@@ -93,15 +105,16 @@ export class UserService {
           'board.user'
       ]});
 
-    if (existingList && existingList.board.user.id === userId) {
+    if (existingList && existingList.board.user.id === userId && existingList.board.id === +listDto.boardId) {
       throw new ConflictException("List already exists");
     }
 
     if (user){
-      const board = user.boards.find((board) => board.id === listDto.boardId);
+      let board = user.boards.find((board) => board.id === listDto.boardId);
 
       if (!board){
-        throw new ConflictException("Board does not exist");
+        board = user.sharedWithMe.find((shared) => shared.board.id === listDto.boardId).board
+        if (!board) throw new ConflictException("Board does not exist");
       }
 
       const list = this.listRepository.create({

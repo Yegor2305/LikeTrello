@@ -6,6 +6,7 @@ import {
     verticalListSortingStrategy
 } from "@dnd-kit/sortable";
 import {useDroppable} from "@dnd-kit/core";
+import { CgAdd } from 'react-icons/cg';
 
 const containerStyle = {
     paddingBottom: "6px",
@@ -29,7 +30,7 @@ const List : FC<ListProps> = ({list, addCard, shared}) => {
     })
 
     const addCardHandler = async () => {
-        addCard(cardName, +list.id);
+        await addCard(cardName, +list.id);
         setAdding(false);
         setCardName('');
     }
@@ -66,8 +67,8 @@ const List : FC<ListProps> = ({list, addCard, shared}) => {
                 }
                 {
                     (!adding && !shared) &&(
-                        <div className='card' onClick={() => setAdding(true)}>
-                            + Add card
+                        <div className='flex flex-x items-center justify-center card text-align-center' onClick={() => setAdding(true)}>
+                            <CgAdd/> &nbsp; Add card
                         </div>
                     )
                 }

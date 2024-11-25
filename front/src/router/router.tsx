@@ -15,15 +15,9 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <ProtectedRoute>
-                    <Menu forPage={'home'}/>
+                    <Menu/>
                 </ProtectedRoute>
 
-            },
-            {
-                path: 'shared',
-                element: <ProtectedRoute>
-                    <Menu forPage={'shared'}/>
-                </ProtectedRoute>
             },
             {
                 path: 'confirm-board-sharing/:token',

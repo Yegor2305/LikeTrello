@@ -17,6 +17,7 @@ interface NewCardProps{
 export const ListService = {
     async addCard(cardProps: NewCardProps, listId: number) : Promise<IList> {
         const {data} = await instanceAuth.post<IList>(`/lists/add-card/${listId}`, cardProps);
+        console.log(data);
         return data;
     },
     async updateListCards(listProps: UpdateCardsInListProps, listId: number) : Promise<any>{

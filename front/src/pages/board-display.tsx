@@ -15,6 +15,7 @@ import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { ListService } from '../services/list.service.ts';
 import ShareBoardModal from '../components/modals/share-board-modal.tsx';
 import { toast } from 'react-toastify';
+import { CgAdd } from 'react-icons/cg';
 
 interface BoardDisplayProps extends SharedProp{
     boardToDisplay: IBoard;
@@ -97,7 +98,7 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
         const { id } = active;
         const { id: overId } = over;
         // console.log(overId)
-        console.log(event)
+        // console.log(event)
         if (!overId) {
             return;
         }
@@ -224,7 +225,6 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
     }
 
     const addListHandler = async () => {
-        console.log(listName)
         if (listName.trim() != "") {
             const data = await UserService.addList({ name: listName, boardId: board?.id })
             if (data) {
@@ -299,7 +299,7 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
             {
                 (!adding && !shared) && (
                     <div className='flex list pointer items-center justify-center text-align-center' onClick={() => setAdding(true)}>
-                        + Add List
+                        <CgAdd/> &nbsp; Add List
                     </div>
                 )
             }
