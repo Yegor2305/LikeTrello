@@ -7,6 +7,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import { AuthModule } from './auth/auth.module';
 import { ListModule } from './list/list.module';
 import { MailerModule } from './mailer/mailer.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { MailerModule } from './mailer/mailer.module';
     AuthModule,
     ListModule,
     MailerModule,
+    CommentModule,
     ],
   controllers: [AppController],
   providers: [AppService],
