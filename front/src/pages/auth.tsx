@@ -2,14 +2,20 @@ import {FC, useState} from "react";
 import * as React from "react";
 import {useAppDispatch} from "../store/hooks.ts";
 import {useNavigate} from "react-router-dom";
-import { AuthProps, IUser } from '../types/types.ts';
+import { IUser } from '../types/types.ts';
 import {login} from "../store/userSlice.ts";
 import {setTokenToLocalStorage} from "../services/localStorageManager.ts";
 import {AuthService} from "../services/auth.service.ts";
+import { toast } from 'react-toastify';
 
-const Auth : FC<AuthProps> = ({isLogin}) => {
+interface AuthProps{
+    initialLogin?: boolean;
+    goTo?: string;
+}
 
-    // const [isLogin, setIsLogin] = useState<boolean>(true)
+const Auth : FC<AuthProps> = ({ goTo, initialLogin }) => {
+
+    const [isLogin, setIsLogin] = useState<boolean>(initialLogin ? initialLogin : true)
     const [email, setEmail] = useState<string>('');
     const [username, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
@@ -21,7 +27,8 @@ const Auth : FC<AuthProps> = ({isLogin}) => {
         if (data){
             setTokenToLocalStorage(data.access_token)
             dispatch(login(data))
-            navigate("/")
+            navigate(goTo ? goTo : '/')
+            toast.success('Success')
         }
     }
 
@@ -31,7 +38,7 @@ const Auth : FC<AuthProps> = ({isLogin}) => {
             const data = await AuthService.login({username, password});
             log_in(data);
         }catch (error : any){
-            console.log((error.response?.data.message).toString());
+            toast.error((error.response?.data.message).toString());
         }
     }
 
@@ -42,9 +49,12 @@ const Auth : FC<AuthProps> = ({isLogin}) => {
                 const data = await AuthService.register({username, password, email});
                 log_in(data);
             }
+            else{
+                toast.error('Passwords do not match');
+            }
 
         }catch (error : any){
-            console.log((error.response?.data.message).toString());
+            toast.error((error.response?.data.message).toString());
         }
     }
 
@@ -78,10 +88,10 @@ const Auth : FC<AuthProps> = ({isLogin}) => {
         </form>
         {
             isLogin ? (
-              <button className='btn-text mt-20px' onClick={() => navigate('/register')}>Don't have an
+              <button className='btn-text mt-20px' onClick={() => setIsLogin(!isLogin)}>Don't have an
                     account?</button>
             ) : (
-                <button className='btn-text mt-20px' onClick={() => navigate('/login')}>Already have an
+                <button className='btn-text mt-20px' onClick={() => setIsLogin(!isLogin)}>Already have an
                     account?</button>
             )
         }

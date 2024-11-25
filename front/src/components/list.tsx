@@ -1,7 +1,6 @@
 import {FC, useState} from "react";
-import {ListProps} from "../types/types.ts";
+import { IList, SharedProp } from '../types/types.ts';
 import Card from "./card.tsx";
-
 import {
     SortableContext,
     verticalListSortingStrategy
@@ -13,6 +12,11 @@ const containerStyle = {
     paddingTop: "6px",
     gap: 4,
 };
+
+interface ListProps extends SharedProp{
+    list: IList;
+    addCard: (cardName: string, listId: number) => Promise<void>;
+}
 
 const List : FC<ListProps> = ({list, addCard, shared}) => {
 
@@ -37,17 +41,17 @@ const List : FC<ListProps> = ({list, addCard, shared}) => {
 
             <div className='flex flex-y flex-end flex-1' style={containerStyle}>
                 {
-                    list.cards.length > 0 && (
-                        <SortableContext id={id} items={list.cards} strategy={verticalListSortingStrategy}>
-                            <div ref={setNodeRef} className='list-content flex flex-y'>
-                                {
-                                    list.cards.map((card) => (
-                                        <Card key={card.id} id={`${card.id}`} card={card} />
-                                    ))
-                                }
-                            </div>
-                            </SortableContext>
-                    )
+                    <SortableContext id={id} items={list.cards} strategy={verticalListSortingStrategy}>
+
+                        <div ref={setNodeRef} className={list.cards.length > 0 ? 'list-content' : 'pad-0'}>
+                        {
+                            list.cards.map((card) => (
+                                <Card key={card.id} id={`${card.id}`} card={card} />
+                            ))
+                        }
+                        </div>
+
+                    </SortableContext>
                 }
                 {
                     adding && (

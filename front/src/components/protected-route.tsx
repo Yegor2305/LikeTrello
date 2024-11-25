@@ -11,7 +11,7 @@ const ProtectedRoute : FC<Props> = ({ children }) => {
     const isAuth = useAuth()
     return <>
         {
-            isAuth ? children : <Auth/>
+            isAuth ? children : <Auth isLogin={true}/>
         }
     </>
 }

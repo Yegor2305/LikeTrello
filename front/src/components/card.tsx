@@ -1,12 +1,22 @@
 import {FC} from "react";
-import {CardProps, ItemProps} from "../types/types.ts";
+import { ICard } from '../types/types.ts';
 import {useSortable} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
+interface ItemProps{
+    id: string;
+    name: string;
+}
 
 export const Item : FC<ItemProps> = ({id, name}) => {
     return <div id={id}>
         {name}
     </div>
+}
+
+interface CardProps{
+    id: string;
+    card: ICard;
 }
 
 const Card : FC<CardProps> = ({id, card} ) => {

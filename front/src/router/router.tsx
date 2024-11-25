@@ -4,6 +4,7 @@ import Error from "../pages/error.tsx";
 import Auth from "../pages/auth.tsx";
 import ProtectedRoute from "../components/protected-route.tsx";
 import Menu from '../components/menu.tsx';
+import ConfirmSharing from '../components/confirm-sharing.tsx';
 
 export const router = createBrowserRouter([
     {
@@ -25,13 +26,14 @@ export const router = createBrowserRouter([
                 </ProtectedRoute>
             },
             {
-                path: 'login',
-                element: <Auth isLogin={true}/>,
+                path: 'confirm-board-sharing/:token',
+                element: <ConfirmSharing/>
+
             },
             {
-                path: 'register',
-                element: <Auth isLogin={false}/>
-            }
+                path: 'auth',
+                element: <Auth/>,
+            },
         ],
     }
 ]);

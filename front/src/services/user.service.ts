@@ -1,5 +1,25 @@
 import { instanceAuth } from "../api/axios.api.ts"
-import { EmailSendingProps, IBoard, ISharedBoards, NewListProps } from '../types/types.ts';
+import { IBoard } from '../types/types.ts';
+
+interface EmailSendingProps{
+	email: string;
+	boardId: number;
+}
+
+interface NewListProps{
+	name: string;
+	boardId: number;
+}
+
+interface ISharedBoards{
+	id: number;
+	board: IBoard;
+}
+
+interface ConfirmBoardSharingResult{
+	success: boolean;
+	message: string;
+}
 
 export const UserService = {
 	async getBoard(boardId: number) : Promise<IBoard> {
@@ -29,5 +49,10 @@ export const UserService = {
 
 	async sendSharingEmail(props: EmailSendingProps): Promise<void> {
 		await instanceAuth.post<void>(`/user/send-email`, props)
+	},
+
+	async confirmBoardSharing(token: string) : Promise<ConfirmBoardSharingResult> {
+		const {data} = await instanceAuth.get<ConfirmBoardSharingResult>(`/user/share-board-confirm?token=${token}`);
+		return data;
 	}
 }

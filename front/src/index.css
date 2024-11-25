@@ -1,3 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+h1{
+  @apply text-2xl;
+}
+
 body{
   margin: 0;
 }
@@ -95,6 +103,10 @@ header{
 
 .flex-end{
   justify-content: flex-end;
+}
+
+.flex-start{
+  justify-content: flex-start;
 }
 
 .to-right{
@@ -270,8 +282,14 @@ header{
 }
 
 .list-content{
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   padding: 6px 0;
+}
+
+.pad-0{
+  padding: 0;
 }
 
 .card{

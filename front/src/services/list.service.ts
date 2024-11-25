@@ -1,5 +1,18 @@
 import { instanceAuth } from "../api/axios.api.ts"
-import { IList, NewCardProps, UpdateCardsInListProps } from '../types/types.ts';
+import { IList } from '../types/types.ts';
+
+interface UpdateCardProps{
+    id: number;
+    position: number;
+}
+
+interface UpdateCardsInListProps{
+    cards: UpdateCardProps[];
+}
+
+interface NewCardProps{
+    name: string;
+}
 
 export const ListService = {
     async addCard(cardProps: NewCardProps, listId: number) : Promise<IList> {

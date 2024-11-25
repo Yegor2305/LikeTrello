@@ -8,9 +8,8 @@ import {
   Body,
   UsePipes,
   ValidationPipe,
-  Query, Res
+  Query
 } from '@nestjs/common';
-import { Response } from 'express';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 import { CreateListDto } from "../list/dto/create-list.dto";
@@ -62,17 +61,10 @@ export class UserController {
     return this.userService.sendSharingEmail(req.user.id, shareDto.email, shareDto.boardId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('share-board-confirm')
-  async confirmBoardSharing(@Query('token') token: string, @Res() res: Response){
-    const result = await this.userService.confirmBoardSharing(token);
-    if (result.success) {
-      return res.redirect('http://localhost:5173/login')
-    }else{
-      if (result.emailNotRegistered){
-        return res.redirect('http://localhost:5173/register');
-      }
-      return res.redirect('http://localhost:5173/error');
-    }
+  async confirmBoardSharing(@Query('token') token: string, @Request() req){
+    return await this.userService.confirmBoardSharing(req.user.id, token);
   }
 
 }

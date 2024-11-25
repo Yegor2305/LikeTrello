@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { UserService } from "../services/user.service.ts";
-import { BoardDisplayProps, IBoard, IList } from '../types/types.ts';
+import { IBoard, IList, SharedProp } from '../types/types.ts';
 import List from "../components/list.tsx";
 import Modal from 'react-modal';
 import {
@@ -13,8 +13,11 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { ListService } from '../services/list.service.ts';
-import ShareBoardModal from '../components/share-board-modal.tsx';
+import ShareBoardModal from '../components/modals/share-board-modal.tsx';
 
+interface BoardDisplayProps extends SharedProp{
+    boardToDisplay: IBoard;
+}
 
 Modal.setAppElement('#root');
 
@@ -72,9 +75,7 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
 
     const findContainer = (id: string) => {
         const inLists = board.lists.find((list) => list.id === id);
-        // console.log(inLists)
         if (inLists) return inLists;
-        // return
         let result: IList | undefined;
         board.lists.forEach((list) => {
             if (list.cards.find((card) => card.id === id)) {
@@ -95,7 +96,7 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
         const { id } = active;
         const { id: overId } = over;
         // console.log(overId)
-        // console.log(event)
+        console.log(event)
         if (!overId) {
             return;
         }
@@ -222,6 +223,7 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
     }
 
     const addListHandler = async () => {
+        console.log(listName)
         if (listName.trim() != "") {
             const data = await UserService.addList({ name: listName, boardId: board?.id })
             if (data) {
@@ -265,17 +267,19 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
                             <List key={list.id} list={list} addCard={addCard} shared={shared} />
                         ))
                     }
-                    {/*<DragOverlay>{activeId ? <div className='card'></div> : null}</DragOverlay>*/}
+                    {/*<DragOverlay>{_activeId ? <div className='card'></div> : null}</DragOverlay>*/}
                 </DndContext>
             }
 
             {
                 adding && (
-                    <form className='flex'>
+                    <form className='flex' onSubmit={addListHandler}>
                         <input type='text' className='add-list-input card'
                                value={listName}
                                onChange={(e) => setListName(e.target.value)}
-                               onBlur={() => addListHandler()} />
+                               onBlur={() => addListHandler()}
+                               autoFocus={true}
+                        />
                     </form>
                 )
             }

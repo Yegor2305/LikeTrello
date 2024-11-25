@@ -45,23 +45,14 @@ export class AuthService {
         })
         if (userExist) throw new BadRequestException('User already exists');
 
-        const userBySharing = await this.userRepository.findOne({where: {email: userDto.email}});
-
-        let newUser : User;
         const salt = this.configService.get<string>('BCRYPT_SALT')
 
-        if (userBySharing && userBySharing.username === ''){
-            newUser = userBySharing;
-            newUser.username = userBySharing.username;
-            newUser.password = await bcrypt.hash(userDto.password, salt);
-        }else{
-            newUser = this.userRepository.create({
-                email: userDto.email,
-                username: userDto.username,
-                password: await bcrypt.hash(userDto.password, salt),
-                boards: []
-            });
-        }
+        const newUser = this.userRepository.create({
+            email: userDto.email,
+            username: userDto.username,
+            password: await bcrypt.hash(userDto.password, salt),
+            boards: []
+        });
 
         const defaultBoard = await this.boardRepository.save({
             name: 'Default',

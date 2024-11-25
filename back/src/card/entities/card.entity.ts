@@ -19,7 +19,7 @@ export class Card {
     @Column({default: 1})
     position: number;
 
-    @Column({nullable: true})
+    @Column({default: '', nullable: true})
     description: string;
 
     @CreateDateColumn()

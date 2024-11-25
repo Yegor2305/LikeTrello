@@ -131,7 +131,7 @@ export class UserService {
     }
 
     const token = this.jwtService.sign({ id: userId, email: email, boardId: boardId });
-    const url = `http://localhost:3000/user/share-board-confirm?token=${token}`;
+    const url = `http://localhost:5173/confirm-board-sharing/${token}`;
     
     const html = `
     <!DOCTYPE html> 
@@ -145,25 +145,18 @@ export class UserService {
     await this.mailerService.sendEmail(email, 'Board Sharing', html)
   }
 
-  async confirmBoardSharing(token: string){
+  async confirmBoardSharing(userId: number, token: string){
     try{
       const payload = this.jwtService.verify(token);
       const {id, email, boardId} = payload;
       const userWhoSharing = await this.userRepository.findOne({where: {id: id}, relations: ['boards']});
-      let userToShare = await this.userRepository.findOne({where: {email: email}});
-      let emailNotRegistered = false
+      const userToShare = await this.userRepository.findOne({where: {email: email}});
 
       if (!userToShare){
-        emailNotRegistered = true;
-
-        userToShare = this.userRepository.create({
-          username: '',
-          password: '',
-          email: email,
-          boards: [],
-        })
-
-        await this.userRepository.save(userToShare)
+        return {success: false, message: 'User to share is not registered'}
+      }
+      if (userToShare.id !== userId){
+        return {success: false, message: 'Cannot confirm someone else\'s request'};
       }
 
       const board = userWhoSharing.boards.find((board) => board.id === +boardId);
@@ -185,10 +178,10 @@ export class UserService {
       if (!board.shared) board.shared = [];
       board.shared.push(newSharedRelations);
 
-      return {success: !emailNotRegistered, emailNotRegistered: emailNotRegistered};
+      return {success: true};
     }
     catch (error){
-      return {success: false, emailNotRegistered: false, message: 'An error has occurred' };
+      return {success: false, message: 'An error has occurred' };
     }
   }
 }

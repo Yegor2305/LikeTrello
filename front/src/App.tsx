@@ -1,5 +1,6 @@
 import './index.css'
 import './colors.css'
+import 'react-toastify/dist/ReactToastify.css';
 import {RouterProvider} from "react-router-dom";
 import {router} from "./router/router.tsx";
 import {getTokenFromLocalStorage} from "./services/localStorageManager.ts";

@@ -1,5 +1,16 @@
 import { instanceAuth } from "../api/axios.api.ts"
-import { IUserData, IUser, IUserRegisterData } from '../types/types.ts';
+import { IUser } from '../types/types.ts';
+
+interface IUserRegisterData {
+    email: string;
+    username: string;
+    password: string;
+}
+
+interface IUserData{
+    username: string;
+    password: string;
+}
 
 export const AuthService = {
     async register(userData : IUserRegisterData) : Promise<IUser> {

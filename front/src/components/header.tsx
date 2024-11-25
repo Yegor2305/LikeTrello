@@ -37,11 +37,11 @@ const Header : FC = () => {
         }
         {
             isAuth ? (
-                <button className='btn y-center' onClick={logoutHandler}>
+                <button className='btn y-center px-2' onClick={logoutHandler}>
                     <span>Log out</span>
                 </button>
             ) : (
-                <Link className='to-right a-default text-navigation-common' to='login'>
+                <Link className='to-right a-default text-navigation-common' to='/auth'>
                     Log in | Sign Up
                 </Link>
             )

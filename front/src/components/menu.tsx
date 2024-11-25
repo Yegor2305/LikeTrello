@@ -1,7 +1,11 @@
 import { FC, useEffect, useState } from 'react';
-import { IBoard, MenuProps } from '../types/types.ts';
+import { IBoard, Pages } from '../types/types.ts';
 import { UserService } from '../services/user.service.ts';
 import { BoardDisplay } from '../pages/board-display.tsx';
+
+interface MenuProps{
+	forPage: Pages;
+}
 
 const Menu : FC<MenuProps> = ({forPage}) => {
 
