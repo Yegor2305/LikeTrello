@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import {User} from "./entities/user.entity";
 import {Repository} from "typeorm";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -122,13 +122,22 @@ export class UserService {
   }
 
   async sendSharingEmail(userId: number, email: string, boardId: number){
-    const userWhoSharing = await this.userRepository.findOne({where: {id: userId}, relations: ['boards']});
+    const userWhoSharing = await this.userRepository.findOne({where: {id: userId}, relations: [
+          'boards',
+          'meShared',
+          'meShared.userSharedWith'
+      ]});
+
     if (userWhoSharing){
-      if (userWhoSharing.email === email ||
-          !userWhoSharing.boards.find((board) => board.id === +boardId)){
-        throw new BadRequestException("An error in input data occurred");
-      }
-    }
+      if (userWhoSharing.email === email)
+		  throw new ConflictException('You can\'t share a board with yourself');
+	  if (!userWhoSharing.boards.find((board) => board.id === +boardId))
+		  throw new NotFoundException('Board not found');
+	  if (userWhoSharing.meShared.find((shared) => shared.userSharedWith.email === email))
+		  throw new ConflictException('This user is already using this board');
+    }else{
+		throw new NotFoundException('User not found');
+	}
 
     const token = this.jwtService.sign({ id: userId, email: email, boardId: boardId });
     const url = `http://localhost:5173/confirm-board-sharing/${token}`;

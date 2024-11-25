@@ -47,8 +47,9 @@ export const UserService = {
 		return data;
 	},
 
-	async sendSharingEmail(props: EmailSendingProps): Promise<void> {
-		await instanceAuth.post<void>(`/user/send-email`, props)
+	async sendSharingEmail(props: EmailSendingProps) : Promise<void> {
+		await instanceAuth.post(`/user/send-email`, props)
+
 	},
 
 	async confirmBoardSharing(token: string) : Promise<ConfirmBoardSharingResult> {

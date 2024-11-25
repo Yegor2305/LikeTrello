@@ -14,6 +14,7 @@ import {
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { ListService } from '../services/list.service.ts';
 import ShareBoardModal from '../components/modals/share-board-modal.tsx';
+import { toast } from 'react-toastify';
 
 interface BoardDisplayProps extends SharedProp{
     boardToDisplay: IBoard;
@@ -242,6 +243,18 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
         }
     }
 
+    const shareBoard = async (email : string) => {
+        if (email.trim() !== ''){
+            try {
+                await UserService.sendSharingEmail({ email: email, boardId: board.id });
+                toast.success('Sent');
+            }catch (error : any){
+                toast.error((error.response?.data.message).toString());
+            }
+            setModalIsOpen(false);
+        }
+    }
+
     return <div className='board-display'>
         {
             !shared && (
@@ -252,7 +265,7 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
             isOpen={modalIsOpen}
             onRequestClose={() => setModalIsOpen(false)}
             style={modalStyle}>
-            <ShareBoardModal boardId={board.id}/>
+            <ShareBoardModal onSubmit={shareBoard}/>
         </Modal>
         <div className='flex flex-x lists-container'>
             {
