@@ -47,7 +47,7 @@ const List : FC<ListProps> = ({list, addCard, shared}) => {
                         <div ref={setNodeRef} className={list.cards.length > 0 ? 'list-content' : 'pad-0'}>
                         {
                             list.cards.map((card) => (
-                                <Card key={card.id} id={`${card.id}`} card={card} />
+                                <Card key={card.id} id={`${card.id}`} card={card} list={list} />
                             ))
                         }
                         </div>

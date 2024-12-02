@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from '../../user/entities/user.entity';
+import { Card } from '../../card/entities/card.entity';
 
 @Entity()
 export class Comment {
@@ -11,5 +13,15 @@ export class Comment {
 	@CreateDateColumn()
 	createdAt: Date;
 
+	@ManyToOne(() => User, user => user.comments)
+	author: User;
 
+	@ManyToOne(() => Comment, comment => comment)
+	replyTo: Comment;
+
+	@OneToMany(() => Comment, comment => comment)
+	replies: Comment[];
+
+	@ManyToOne(() => Card, card => card.comments)
+	card: Card;
 }

@@ -1,6 +1,7 @@
 import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Board} from "../../board/entities/board.entity";
 import {Shared} from "../../shared/entities/shared.entity";
+import {Comment} from "../../comment/entities/comment.entity"
 
 @Entity()
 export class User {
@@ -24,4 +25,7 @@ export class User {
 
     @OneToMany(() => Shared, (shared) => shared.userSharedWith)
     sharedWithMe: Shared[];
+
+    @OneToMany(() => Comment, (comment) => comment.author )
+    comments: Comment[];
 }

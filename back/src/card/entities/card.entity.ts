@@ -2,11 +2,12 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    ManyToOne,
+    ManyToOne, OneToMany,
     PrimaryGeneratedColumn,
-    UpdateDateColumn
-} from "typeorm";
+    UpdateDateColumn,
+} from 'typeorm';
 import {List} from "../../list/entities/list.entity";
+import {Comment} from "../../comment/entities/comment.entity";
 
 @Entity()
 export class Card {
@@ -30,4 +31,7 @@ export class Card {
 
     @ManyToOne(() => List, (list) => list.cards)
     list: List
+
+    @OneToMany(() => Comment, (comment) => comment.card)
+    comments: Comment[];
 }

@@ -21,7 +21,7 @@ export interface ICard{
     id: string;
     name: string;
     position: number;
-    description: string | null;
+    description: string;
     createdAt: Date;
     updatedAt: Date;
 }

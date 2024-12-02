@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ListModule } from './list/list.module';
 import { MailerModule } from './mailer/mailer.module';
 import { CommentModule } from './comment/comment.module';
+import { CardModule } from './card/card.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CommentModule } from './comment/comment.module';
     ListModule,
     MailerModule,
     CommentModule,
+    CardModule,
     ],
   controllers: [AppController],
   providers: [AppService],

@@ -299,6 +299,7 @@ header{
   border-radius: 12px;
   margin: 0 6px;
   display: flex;
+  align-items: center;
 }
 
 textarea{
@@ -385,4 +386,9 @@ textarea{
 
 .left-side-menu-item:hover{
   opacity: 0.8;
+}
+
+.edit-card-section{
+  column-count: 2;
+  grid-template-columns: 0fr 10fr;
 }
