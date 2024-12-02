@@ -28,8 +28,10 @@ export class CommentService {
 
     if (!card) throw new NotFoundException('Card not found');
 
-    if (card.list.board.user.id !== user.id ||
-        !card.list.board.shared.find((shared) => shared.userSharedWith.id === user.id)) {
+    console.log(card.list.board.user)
+    console.log(user.id)
+    if (card.list.board.user.id !== user.id &&
+        !card.list.board.shared.find((shared) => shared.userSharedWith.id === user.id) ) {
       throw new BadRequestException('You don\'t have permission to leave comment');
     }
 
@@ -41,5 +43,18 @@ export class CommentService {
 
     await this.commentRepository.save(comment);
 
+  }
+
+  async getComments(cardId: number){
+      const comments = await this.commentRepository.createQueryBuilder('comment')
+          .innerJoin('comment.author', 'author')
+          .select(['comment', 'author.username'])
+          .innerJoin('comment.card', 'card')
+          .where('card.id = :cardId', { cardId })
+          .getMany();
+
+      if (!comments) throw new NotFoundException('Comments not found');
+
+      return comments;
   }
 }

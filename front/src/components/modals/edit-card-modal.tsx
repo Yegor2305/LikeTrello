@@ -4,6 +4,7 @@ import { IoMdCard } from 'react-icons/io';
 import { FiAlignLeft } from 'react-icons/fi';
 import { CardService } from '../../services/card.service.ts';
 import { toast } from 'react-toastify';
+import { FaComment } from 'react-icons/fa';
 
 interface EditCardModalProps {
 	card: ICard;
@@ -44,6 +45,16 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 				<textarea className='ml-2 resize-none text-2xl font-medium' value={cardDescription}
 						  onChange={(e) => setCardDescription(e.target.value)}
 						  onBlur={cardUpdateHandler} placeholder='Card Description'></textarea>
+			</section>
+			<section className='grid edit-card-section max-width pr-2 mt-2'>
+				<FaComment  className='m-auto' />
+				<div className='ml-2 text-2xl font-medium'>Comments</div>
+
+				<div></div>
+				<div></div>
+				{/*<textarea className='ml-2 resize-none text-2xl font-medium' value={cardDescription}*/}
+				{/*		  onChange={(e) => setCardDescription(e.target.value)}*/}
+				{/*		  onBlur={cardUpdateHandler} placeholder='Card Description'></textarea>*/}
 			</section>
 		</div>
 	);

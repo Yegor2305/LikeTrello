@@ -26,6 +26,13 @@ export interface ICard{
     updatedAt: Date;
 }
 
+export interface IComment{
+    id: number;
+    text: string;
+    createdAt: Date;
+    author: string;
+}
+
 export interface IList{
     id: string;
     name: string;
