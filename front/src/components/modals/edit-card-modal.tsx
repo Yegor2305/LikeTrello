@@ -17,6 +17,8 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 	const cardUpdateHandler = async () => {
 		try {
 			await CardService.update({id: +card.id, name: cardName, description: cardDescription})
+			card.name = cardName
+			card.description = cardDescription
 		}
 		catch (error : any){
 			toast.error((error.response?.data.message).toString());
@@ -42,7 +44,6 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 				<textarea className='ml-2 resize-none text-2xl font-medium' value={cardDescription}
 						  onChange={(e) => setCardDescription(e.target.value)}
 						  onBlur={cardUpdateHandler} placeholder='Card Description'></textarea>
-				{/*<div className='ml-2'>in list "{list.name}"</div>*/}
 			</section>
 		</div>
 	);

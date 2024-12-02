@@ -50,9 +50,6 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
             for (let card of list.cards) {
                 card.id = `${card.id}`;
             }
-            list.cards.sort((a, b) => {
-                return a.position - b.position;
-            })
         }
         setBoard(data);
     }

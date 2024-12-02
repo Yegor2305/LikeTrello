@@ -33,7 +33,13 @@ export class UserService {
       ]});
 
     if (user){
-      return user.boards;
+      return user.boards.map((board) => ({
+        ...board,
+        lists: board.lists.map((list) => ({
+          ...list,
+          cards: list.cards.sort((a, b) => a.position - b.position),
+        }))
+      }))
     }
     throw new NotFoundException('User not found');
   }
@@ -49,7 +55,16 @@ export class UserService {
         .where('user.id = :userId', { userId }) .getOne();
 
     if (user && user.sharedWithMe){
-      return user.sharedWithMe;
+      return user.sharedWithMe.map((shared) => ({
+        ...shared,
+        board: {
+          ...shared.board,
+          lists: shared.board.lists.map((list) => ({
+            ...list,
+            cards: list.cards.sort((a, b) => a.position - b.position),
+          }))
+        }
+      }));
     }
     throw new NotFoundException('User not found or user does not have shared boards');
   }
@@ -154,7 +169,7 @@ export class UserService {
 
     const token = this.jwtService.sign({ id: userId, email: email, boardId: boardId });
     const url = `http://localhost:5173/confirm-board-sharing/${token}`;
-    
+
     const html = `
     <!DOCTYPE html> 
       <html lang='en'> 
