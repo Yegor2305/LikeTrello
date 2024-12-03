@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { UserService } from "../services/user.service.ts";
-import { IBoard, IList, SharedProp } from '../types/types.ts';
+import { IBoard, IList } from '../types/types.ts';
 import List from "../components/list.tsx";
 import Modal from 'react-modal';
 import {
@@ -16,20 +16,22 @@ import { ListService } from '../services/list.service.ts';
 import ShareBoardModal from '../components/modals/share-board-modal.tsx';
 import { toast } from 'react-toastify';
 import { CgAdd } from 'react-icons/cg';
+import { useIsShared } from '../store/hooks.ts';
 
-interface BoardDisplayProps extends SharedProp{
+interface BoardDisplayProps {
     boardToDisplay: IBoard;
 }
 
 Modal.setAppElement('#root');
 
-export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) => {
+export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay }) => {
 
     const [board, setBoard] = useState<IBoard>(boardToDisplay);
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
     const [adding, setAdding] = useState<boolean>(false)
     const [listName, setListName] = useState<string>("")
     const [_activeId, setActiveId] = useState<string | null>(null);
+    const shared = useIsShared();
 
     const modalStyle = {
         content: {
@@ -44,25 +46,15 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay, shared }) 
         },
     };
 
-    const setStringIds = (data: IBoard) => {
-        for (let list of data.lists) {
-            list.id = `${list.id}`
-            for (let card of list.cards) {
-                card.id = `${card.id}`;
-            }
-        }
-        setBoard(data);
-    }
-
     const getLists = async () => {
         const data = await UserService.getBoard(board.id);
         if (data) {
-            setStringIds(data);
+            setBoard(data)
         }
     }
 
     useEffect(() => {
-        setStringIds(boardToDisplay);
+        setBoard(boardToDisplay)
     }, [boardToDisplay]);
 
     const sensors = useSensors(

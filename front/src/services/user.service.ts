@@ -32,13 +32,13 @@ export const UserService = {
 		return data;
 	},
 
-	async getBoards() : Promise<IBoard[]> {
-		const {data} = await instanceAuth.get<IBoard[]>("user/boards");
+	async getBoards(stringifyIds : boolean = false) : Promise<IBoard[]> {
+		const {data} = await instanceAuth.get<IBoard[]>(`user/boards/${stringifyIds}`);
 		return data;
 	},
 
-	async getSharedBoards() : Promise<IBoard[]> {
-		const {data} = await instanceAuth.get<ISharedBoards[]>("user/shared-boards");
+	async getSharedBoards(stringifyIds : boolean = false) : Promise<IBoard[]> {
+		const {data} = await instanceAuth.get<ISharedBoards[]>(`user/shared-boards/${stringifyIds}`);
 		return data.map((shared) => { return shared.board });
 	},
 

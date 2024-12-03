@@ -5,6 +5,7 @@ import { FiAlignLeft } from 'react-icons/fi';
 import { CardService } from '../../services/card.service.ts';
 import { toast } from 'react-toastify';
 import { FaComment } from 'react-icons/fa';
+import { useMutation, useQueryClient } from 'react-query';
 
 interface EditCardModalProps {
 	card: ICard;
@@ -15,11 +16,16 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 	const [cardName, setCardName] = useState<string>(card.name);
 	const [cardDescription, setCardDescription] = useState<string>(card.description ? card.description : '' );
 
+	const queryClient = useQueryClient();
+	const {mutate: updateCard} = useMutation(() => CardService.update({
+		id: +card.id,
+		name: cardName,
+		description: cardDescription
+	}), {onSuccess: () => queryClient.invalidateQueries('boards')})
+
 	const cardUpdateHandler = async () => {
 		try {
-			await CardService.update({id: +card.id, name: cardName, description: cardDescription})
-			card.name = cardName
-			card.description = cardDescription
+			updateCard();
 		}
 		catch (error : any){
 			toast.error((error.response?.data.message).toString());

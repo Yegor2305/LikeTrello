@@ -6,3 +6,6 @@ export const useAppSelector = useSelector.withTypes<RootState>()
 export const useAuth = () : boolean => {
     return useAppSelector((state) => state.user.isAuthenticated);
 }
+export const useIsShared = () : boolean => {
+    return useAppSelector((state) => state.board.shared);
+}

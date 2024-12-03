@@ -25,7 +25,7 @@ export class UserService {
     return this.userRepository.findOne({ where: {username} });
   }
 
-  async getBoards(userId: number){
+  async getBoards(userId: number, stringifyIds: boolean) {
     const user = await this.userRepository.findOne({where: {id: userId}, relations: [
         'boards',
         'boards.lists',
@@ -37,14 +37,18 @@ export class UserService {
         ...board,
         lists: board.lists.map((list) => ({
           ...list,
-          cards: list.cards.sort((a, b) => a.position - b.position),
+          id: stringifyIds ? String(list.id) : list.id,
+          cards: list.cards.map((card) => ({
+            ...card,
+            id: stringifyIds ? String(card.id) : card.id,
+          })).sort((a, b) => a.position - b.position),
         }))
       }))
     }
     throw new NotFoundException('User not found');
   }
 
-  async getSharedBoards(userId: number){
+  async getSharedBoards(userId: number, stringifyIds: boolean){
     const user = await this.userRepository.createQueryBuilder('user')
         .leftJoinAndSelect('user.sharedWithMe', 'sharedWithMe')
         .leftJoinAndSelect('sharedWithMe.board', 'board')
@@ -61,7 +65,11 @@ export class UserService {
           ...shared.board,
           lists: shared.board.lists.map((list) => ({
             ...list,
-            cards: list.cards.sort((a, b) => a.position - b.position),
+            id: stringifyIds ? String(list.id) : list.id,
+            cards: list.cards.map((card) => ({
+              ...card,
+              id: stringifyIds ? String(card.id) : card.id
+            })).sort((a, b) => a.position - b.position),
           }))
         }
       }));

@@ -32,15 +32,15 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('boards')
-  getBoards(@Request() req) {
-    return this.userService.getBoards(req.user.id);
+  @Get('boards/:stringifyIds')
+  getBoards(@Request() req, @Param('stringifyIds') stringifyIds: string) {
+    return this.userService.getBoards(req.user.id, stringifyIds === 'true');
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('shared-boards')
-  getSharedBoards(@Request() req) {
-    return this.userService.getSharedBoards(req.user.id);
+  @Get('shared-boards/:stringifyIds')
+  getSharedBoards(@Request() req, @Param('stringifyIds') stringifyIds: string) {
+    return this.userService.getSharedBoards(req.user.id, stringifyIds === 'true');
   }
 
   @Get('user/:username')

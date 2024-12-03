@@ -30,7 +30,7 @@ export interface IComment{
     id: number;
     text: string;
     createdAt: Date;
-    author: string;
+    author: IUsername;
 }
 
 export interface IList{
