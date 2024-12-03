@@ -2,8 +2,8 @@ import { instanceAuth } from '../api/axios.api.ts';
 
 interface UpdateCardProps{
 	id: number;
-	name?: string;
-	description?: string;
+	name: string;
+	description: string;
 }
 
 export const CardService = {

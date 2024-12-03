@@ -24,7 +24,12 @@ const dateOptions: Intl.DateTimeFormatOptions = {
 
 const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 	const [cardName, setCardName] = useState<string>(card.name);
+	const [commentEditing, setCommentEditing] = useState<boolean>(false);
 	const [cardDescription, setCardDescription] = useState<string>(card.description ? card.description : '' );
+	const [commentText, setCommentText] = useState<string>('');
+
+	const {data: comments} = useQuery('comments', () => CommentService.getComments(+card.id),
+		{ keepPreviousData: true })
 
 	const queryClient = useQueryClient();
 	const {mutate: updateCard} = useMutation(() => CardService.update({
@@ -33,14 +38,9 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 		description: cardDescription
 	}), {onSuccess: () => queryClient.invalidateQueries('boards')})
 
-	const {data: comments, isSuccess} = useQuery('comments', () => CommentService.getComments(+card.id),
-		{ keepPreviousData: true })
-
-	if (isSuccess){
-		console.log(comments)
-		console.log(new Date(comments[0].createdAt))
-		console.log(typeof new Date(comments[0].createdAt))
-	}
+	const {mutate: leaveComment} = useMutation(() =>
+		CommentService.leaveComment({text: commentText, targetCardId: +card.id}),
+		{onSuccess: () => queryClient.invalidateQueries('comments')})
 
 	const cardUpdateHandler = async () => {
 		try {
@@ -51,36 +51,61 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 		}
 	}
 
+	const saveCommentHandler = async () => {
+		if (commentText.trim() != ''){
+			leaveComment();
+			setCommentEditing(false);
+			setCommentText('');
+		}
+	}
+
 	return (
 		<div className='flex flex-col'>
 			<section className='grid edit-card-section max-width pr-2'>
-				<IoMdCard className='m-auto'/>
+				<IoMdCard className='m-auto' />
 				<textarea
-					rows={1} maxLength={60} className='ml-2 resize-none text-2xl font-medium' value={cardName}
+					rows={1} maxLength={60}
+					className='ml-2 resize-none text-2xl font-medium bg-transparent focus:bg-white px-3 py-1.5'
+					value={cardName}
 					onChange={(e) => setCardName(e.target.value)}
 					onBlur={cardUpdateHandler} placeholder='Card Name'></textarea>
 				<div></div>
-				<div className='ml-2'>in list "{list.name}"</div>
+				<div className='ml-2 px-3 py-1.5'>in list "{list.name}"</div>
 			</section>
 			<section className='grid edit-card-section max-width pr-2 mt-2'>
 				<FiAlignLeft className='m-auto' />
 				<div className='ml-2 text-2xl font-medium'>Description</div>
-
 				<div></div>
-				<textarea className='ml-2 resize-none text-2xl font-medium' value={cardDescription}
-						  onChange={(e) => setCardDescription(e.target.value)}
-						  onBlur={cardUpdateHandler} placeholder='Card Description'></textarea>
+				<textarea
+					className='ml-2 resize-none text-2xl font-medium rounded card-textarea px-3 py-1.5'
+					value={cardDescription}
+					onChange={(e) => setCardDescription(e.target.value)}
+					onBlur={cardUpdateHandler} placeholder='Card Description'></textarea>
 			</section>
 			<section className='grid edit-card-section max-width pr-2 mt-2'>
 				<FaComment className='m-auto' />
-				<div className='ml-2 text-2xl font-medium'>Comments</div>
+				<div className='ml-2 text-2xl font-medium'>Write a comment</div>
 				<div></div>
-				<div className='overflow-hidden'>
+				<div className='flex flex-y'>
+					<textarea rows={commentEditing ? 4 : 1}
+							  onFocus={() => setCommentEditing(true)}
+							  value={commentText}
+							  onChange={(e) => setCommentText(e.target.value)}
+				  		className='ml-2 resize-none text-2xl font-medium bg-transparent focus:bg-white px-3 py-1.5 card-textarea'/>
+					{
+						commentEditing && (
+							<div className='btn ml-2 m-auto px-6 mt-2' onClick={saveCommentHandler}>Save</div>
+						)
+					}
 					{
 						comments?.map((comment) => (
-							<div className='ml-2 font-medium'>
-								<div>{comment.author.username} {new Date(comment.createdAt).toLocaleString(undefined, dateOptions)}</div>
-								<div>{comment.text}</div>
+							<div key={comment.id} className='ml-2 font-medium'>
+								<div>
+									<span className='text-xl'>{comment.author.username}</span>
+									<span
+										className='ml-2 text-xs font-light'>{new Date(comment.createdAt).toLocaleString(undefined, dateOptions)}</span>
+								</div>
+								<div className='bg-white rounded px-3 py-1.5 w-96 break-words'>{comment.text}</div>
 							</div>
 						))
 					}

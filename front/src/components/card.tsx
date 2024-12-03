@@ -25,14 +25,14 @@ interface CardProps{
 
 const modalStyle = {
     content: {
-        top: '50%',
+        backgroundColor: '#f1f2f4',
+        top: '15%',
         left: '50%',
         right: 'auto',
         bottom: 'auto',
         width: '50%',
-        height: '50%',
         padding: '6px',
-        transform: 'translate(-50%, -50%)',
+        transform: 'translate(-50%)',
     },
 };
 
@@ -95,9 +95,6 @@ const Card : FC<CardProps> = ({id, card, list} ) => {
                     )
                 }
             </div>
-
-
-
         </>
     )
 }

@@ -16,7 +16,7 @@ export class CardService {
 		if (!card) throw new NotFoundException('Card not found');
 
 		card.name = cardDto.name ? cardDto.name : card.name;
-		card.description = cardDto.description ? cardDto.description : card.description;
+		card.description = cardDto.description;
 
 		await this.cardRepository.save(card);
 	}

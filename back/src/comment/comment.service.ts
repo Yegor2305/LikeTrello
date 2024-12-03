@@ -51,6 +51,7 @@ export class CommentService {
           .select(['comment', 'author.username'])
           .innerJoin('comment.card', 'card')
           .where('card.id = :cardId', { cardId })
+          .orderBy('comment.createdAt', 'DESC')
           .getMany();
 
       if (!comments) throw new NotFoundException('Comments not found');
