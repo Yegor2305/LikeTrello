@@ -10,6 +10,9 @@ export class List {
     @Column()
     name: string;
 
+    @Column({default: 1})
+    position: number;
+
     @OneToMany(() => Card, card => card.list)
     cards: Card[];
 

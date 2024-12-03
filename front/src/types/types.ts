@@ -29,7 +29,7 @@ export interface ICard{
 export interface IComment{
     id: number;
     text: string;
-    createdAt: Date;
+    createdAt: string;
     author: IUsername;
 }
 

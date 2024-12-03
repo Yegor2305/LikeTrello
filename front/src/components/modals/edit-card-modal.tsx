@@ -5,12 +5,22 @@ import { FiAlignLeft } from 'react-icons/fi';
 import { CardService } from '../../services/card.service.ts';
 import { toast } from 'react-toastify';
 import { FaComment } from 'react-icons/fa';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { CommentService } from '../../services/comment.service.ts';
 
 interface EditCardModalProps {
 	card: ICard;
 	list: IList;
 }
+
+const dateOptions: Intl.DateTimeFormatOptions = {
+	year: 'numeric',
+	month: 'short',
+	day: 'numeric',
+	hour: 'numeric',
+	minute: 'numeric',
+	hour12: true
+};
 
 const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 	const [cardName, setCardName] = useState<string>(card.name);
@@ -22,6 +32,15 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 		name: cardName,
 		description: cardDescription
 	}), {onSuccess: () => queryClient.invalidateQueries('boards')})
+
+	const {data: comments, isSuccess} = useQuery('comments', () => CommentService.getComments(+card.id),
+		{ keepPreviousData: true })
+
+	if (isSuccess){
+		console.log(comments)
+		console.log(new Date(comments[0].createdAt))
+		console.log(typeof new Date(comments[0].createdAt))
+	}
 
 	const cardUpdateHandler = async () => {
 		try {
@@ -53,14 +72,19 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 						  onBlur={cardUpdateHandler} placeholder='Card Description'></textarea>
 			</section>
 			<section className='grid edit-card-section max-width pr-2 mt-2'>
-				<FaComment  className='m-auto' />
+				<FaComment className='m-auto' />
 				<div className='ml-2 text-2xl font-medium'>Comments</div>
-
 				<div></div>
-				<div></div>
-				{/*<textarea className='ml-2 resize-none text-2xl font-medium' value={cardDescription}*/}
-				{/*		  onChange={(e) => setCardDescription(e.target.value)}*/}
-				{/*		  onBlur={cardUpdateHandler} placeholder='Card Description'></textarea>*/}
+				<div className='overflow-hidden'>
+					{
+						comments?.map((comment) => (
+							<div className='ml-2 font-medium'>
+								<div>{comment.author.username} {new Date(comment.createdAt).toLocaleString(undefined, dateOptions)}</div>
+								<div>{comment.text}</div>
+							</div>
+						))
+					}
+				</div>
 			</section>
 		</div>
 	);

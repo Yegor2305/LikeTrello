@@ -6,6 +6,7 @@ import {Repository} from "typeorm";
 import {Card} from "../card/entities/card.entity";
 import {List} from "./entities/list.entity";
 import { UpdateCardsInListDto } from '../card/dto/update-cards-in-list.dto';
+import { MoveListsDto } from './dto/move-lists.dto';
 
 @Injectable()
 export class ListService {
@@ -70,5 +71,11 @@ export class ListService {
 
     throw new BadRequestException('You have no permission to edit this');
 
+  }
+
+  async moveLists(moveListsDto: MoveListsDto) {
+      for (const list of moveListsDto.lists) {
+          await this.listRepository.update(list.id, { position: list.position });
+      }
   }
 }

@@ -17,6 +17,7 @@ import ShareBoardModal from '../components/modals/share-board-modal.tsx';
 import { toast } from 'react-toastify';
 import { CgAdd } from 'react-icons/cg';
 import { useIsShared } from '../store/hooks.ts';
+import { useMutation, useQueryClient } from 'react-query';
 
 interface BoardDisplayProps {
     boardToDisplay: IBoard;
@@ -32,6 +33,25 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay }) => {
     const [listName, setListName] = useState<string>("")
     const [_activeId, setActiveId] = useState<string | null>(null);
     const shared = useIsShared();
+    const boardSelectionToUpdate = shared ? 'sharedBoards' : 'boards';
+
+    const queryClient = useQueryClient();
+    const { mutate: addList } = useMutation(() =>
+        UserService.addList({ name: listName, boardId: board?.id }),
+        {onSuccess: () => queryClient.invalidateQueries(boardSelectionToUpdate)})
+
+    const { mutate: moveLists } = useMutation(() =>
+        ListService.updateListsPosition({
+            lists: board.lists.map((list, index) => ({
+                id: +list.id,
+                position: index + 1
+            }))
+        }))
+
+    const { mutate: addCard } = useMutation(
+        ({ props, listId } : any) => ListService.addCard(props, listId),
+        { onSuccess: () => queryClient.invalidateQueries(boardSelectionToUpdate)
+    })
 
     const modalStyle = {
         content: {
@@ -46,13 +66,6 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay }) => {
         },
     };
 
-    const getLists = async () => {
-        const data = await UserService.getBoard(board.id);
-        if (data) {
-            setBoard(data)
-        }
-    }
-
     useEffect(() => {
         setBoard(boardToDisplay)
     }, [boardToDisplay]);
@@ -64,10 +77,11 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay }) => {
         })
     );
 
-    const findContainer = (id: string) => {
-        const inLists = board.lists.find((list) => list.id === id);
+    const findContainer = (id: string, containerId: string) => {
+        const inLists = board.lists.find((list) => list.id === containerId);
         if (inLists) return inLists;
         let result: IList | undefined;
+
         board.lists.forEach((list) => {
             if (list.cards.find((card) => card.id === id)) {
                 result = list;
@@ -86,14 +100,12 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay }) => {
         const { active, over, draggingRect } = event;
         const { id } = active;
         const { id: overId } = over;
-        // console.log(overId)
-        // console.log(event)
         if (!overId) {
             return;
         }
 
-        const activeContainer = findContainer(id);
-        const overContainer = findContainer(overId);
+        const activeContainer = findContainer(id, active.data.current?.sortable.containerId || id);
+        const overContainer = findContainer(overId, over.data.current?.sortable.containerId || overId);
 
         if (
             !activeContainer ||
@@ -146,7 +158,6 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay }) => {
                             ...container.cards.slice(0, newIndex),
                             activeCards[activeIndex],
                             ...container.cards.slice(newIndex)];
-
                         ListService.updateListCards({
                             cards: newCards.map((card, index) => ({
                                 id: +card.id,
@@ -173,8 +184,8 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay }) => {
             return;
         }
 
-        const activeContainer = findContainer(id);
-        const overContainer = findContainer(overId);
+        const activeContainer = findContainer(id, active.data.current?.sortable.containerId || id);
+        const overContainer = findContainer(overId, over.data.current?.sortable.containerId || overId);
 
         if (
             !activeContainer ||
@@ -215,21 +226,30 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay }) => {
 
     const addListHandler = async () => {
         if (listName.trim() != "") {
-            const data = await UserService.addList({ name: listName, boardId: board?.id })
-            if (data) {
-                getLists()
-            }
+            addList();
         }
 
         setAdding(false);
         setListName('');
     }
 
-    const addCard = async (cardName: string, listId: number) => {
+    const addCardHandler = async (cardName: string, listId: string) => {
         if (cardName.trim() != "") {
-            const data: IList = await ListService.addCard({ name: cardName }, listId);
-            if (data) getLists();
+            addCard({props: {name: cardName}, listId: +listId});
         }
+    }
+
+    const moveList = async (list: IList, direction: string)=> {
+        const activePosition = board.lists.indexOf(list);
+        let newPosition = direction === 'right' ? activePosition + 1 : activePosition - 1;
+        if (newPosition < 0) newPosition = 0;
+        if (newPosition > board.lists.length) newPosition = board.lists.length;
+
+        setBoard((prev) => {
+            return {...prev, lists: arrayMove(prev.lists, activePosition, newPosition)}
+        })
+
+        moveLists();
     }
 
     const shareBoard = async (email : string) => {
@@ -266,7 +286,7 @@ export const BoardDisplay: FC<BoardDisplayProps> = ({ boardToDisplay }) => {
                     collisionDetection={closestCorners}>
                     {
                         board.lists.map((list) => (
-                            <List key={list.id} list={list} addCard={addCard} shared={shared} />
+                            <List key={list.id} list={list} addCard={addCardHandler} moveList={moveList} />
                         ))
                     }
                     {/*<DragOverlay>{_activeId ? <div className='card'></div> : null}</DragOverlay>*/}

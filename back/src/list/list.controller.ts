@@ -3,6 +3,7 @@ import { ListService } from './list.service';
 import {JwtAuthGuard} from "../auth/guards/jwt.guard";
 import {CreateCardDto} from "../card/dto/create-card.dto";
 import { UpdateCardsInListDto } from '../card/dto/update-cards-in-list.dto';
+import { MoveListsDto } from './dto/move-lists.dto';
 
 @Controller('lists')
 export class ListController {
@@ -19,6 +20,12 @@ export class ListController {
   updateListCards(@Request() req, @Param('list_id') list_id: number,
                   @Body() updateCardsInListDto: UpdateCardsInListDto) {
     return this.listService.updateListCards(req.user.id, +list_id, updateCardsInListDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('update-lists-position')
+  updateListPosition(@Body() moveListsDto: MoveListsDto){
+    return this.listService.moveLists(moveListsDto);
   }
 
 }

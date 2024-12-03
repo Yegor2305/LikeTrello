@@ -42,7 +42,7 @@ export class UserService {
             ...card,
             id: stringifyIds ? String(card.id) : card.id,
           })).sort((a, b) => a.position - b.position),
-        }))
+        })).sort((a, b) => a.position - b.position)
       }))
     }
     throw new NotFoundException('User not found');
@@ -70,7 +70,7 @@ export class UserService {
               ...card,
               id: stringifyIds ? String(card.id) : card.id
             })).sort((a, b) => a.position - b.position),
-          }))
+          })).sort((a, b) => a.position - b.position)
         }
       }));
     }
