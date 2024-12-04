@@ -25,15 +25,29 @@ interface CardProps{
 
 const modalStyle = {
     content: {
-        backgroundColor: '#f1f2f4',
-        top: '15%',
-        left: '50%',
+        // position: 'absolute',
+        backgroundColor: 'transparent',
+        border: 'none',
+        top: '0',
+        left: '25%',
         right: 'auto',
         bottom: 'auto',
+        // height: '100%',
         width: '50%',
         padding: '6px',
-        transform: 'translate(-50%)',
+        // transform: 'translate(-50%)',
+        overflow: 'hidden',
+        // margin: '50px 0',
     },
+    overlay: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'auto',
+        // paddingTop: '100px',
+        // paddingBottom: '100px',
+        // padding: '200px 0'
+    }
 };
 
 const Card : FC<CardProps> = ({id, card, list} ) => {

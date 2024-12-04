@@ -60,7 +60,9 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 	}
 
 	return (
-		<div className='flex flex-col'>
+	<>
+		<div className='edit-card-modal-placeholder'></div>
+		<div className='flex flex-col edit-card-modal-content'>
 			<section className='grid edit-card-section max-width pr-2'>
 				<IoMdCard className='m-auto' />
 				<textarea
@@ -112,6 +114,8 @@ const EditCardModal : FC<EditCardModalProps> = ({card, list}) => {
 				</div>
 			</section>
 		</div>
+		<div className='edit-card-modal-placeholder'></div>
+	</>
 	);
 }
 
